@@ -1305,6 +1305,580 @@
   </div>
   
   <script>
+    const SUPABASE_URL = "https://wjkwdsopttuibaqhqtth.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_KklKPQDko51Y4aFxKfn1fg_F7TAKN1x";
+    const STUDENT_DEFAULT_PIN = "1234";
+    const TEACHER_PIN = "0000";
+  
+    let supabaseClient = null;
+    if (SUPABASE_URL.startsWith("http") && !SUPABASE_URL.includes("여기에")) {
+      try {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      } catch (e) {
+        console.warn("Supabase 연결 대기 중");
+      }
+    }
+  
+    localStorage.removeItem('sc_logged_role');
+    localStorage.removeItem('sc_logged_class');
+    sessionStorage.removeItem('sc_logged_role');
+    sessionStorage.removeItem('sc_logged_class');
+
+    let currentRole = null;
+    let currentClass = null;
+    let selectedAgendaForModal = null;
+    let currentLoginRoleTab = 'student';
+    let currentCalDate = new Date();
+    let pendingStudentName = null;
+
+    let studentPasswords = JSON.parse(localStorage.getItem('sc_student_pws_v1')) || {};
+    let agendas = JSON.parse(localStorage.getItem('sc_agendas_v2')) || [];
+    let submissions = JSON.parse(localStorage.getItem('sc_submissions_v2')) || [];
+    let totalBudget = parseInt(localStorage.getItem('sc_total_budget') || "1000000", 10);
+    let expenses = JSON.parse(localStorage.getItem('sc_expenses_v2')) || [
+      { id: 1, date: "2026.03.15", title: "자치회 임원 당선 축하 및 발대식 다과", amount: 45000, desc: "임원 위촉장 수여식 간식 구매" },
+      { id: 2, date: "2026.04.02", title: "복도 우측통행 캠페인 피켓 및 스티커", amount: 32000, desc: "생활안전 캠페인 홍보 물품 제작" }
+    ];
+    let itemRequests = JSON.parse(localStorage.getItem('sc_item_requests_v2')) || [
+      {
+        id: 1,
+        date: "2026.04.10",
+        class_name: "6-1 김민수",
+        applicant: "전교회장",
+        itemName: "무소음 보드마카 10색 세트",
+        event: "4월 자치회 퀴즈 부스",
+        link: "https://www.coupang.com",
+        qty: 3,
+        price: 8500,
+        total: 25500,
+        memo: "검정/빨강/파랑 포함된 세트 필요",
+        status: "주문 완료"
+      }
+    ];
+
+    let homeData = JSON.parse(localStorage.getItem('sc_home_data_v2')) || {
+      meeting: {
+        title: "수영초 학생자치회 정기 총회",
+        date: "2026.09.05 (금) 14:30",
+        place: "학생자치회실 (본관 2층)",
+        agenda: "가을 축제 부스 운영 아이디어 및 점심시간 놀이마당 규칙 제정",
+        prep: "각 반 회의록 수합본, 필기도구"
+      },
+      events: [
+        { id: 1, date: "2026-09-05", title: "9월 정기 자치회 총회", type: "회의" },
+        { id: 2, date: "2026-09-12", title: "등굣길 안전 & 언어문화 캠페인", type: "캠페인" },
+        { id: 3, date: "2026-09-19", title: "학급 회의 의견 수합 마감", type: "제출마감" },
+        { id: 4, date: "2026-09-26", title: "가을맞이 자치회 퀴즈 부스", type: "행사" }
+      ],
+      classTasks: [
+        { id: 1, target: "4~6학년 전 학급", task: "9월 안건에 대해 학급 회의를 진행하고 [의견 제출] 탭에 회의록 작성하기", dday: "09.04(목)까지" },
+        { id: 2, target: "학급 회장/부회장", task: "정기 회의 전 우리 반 건의사항 및 소리함 접수 내용 정리하기", dday: "09.05(금)까지" },
+        { id: 3, target: "자치회 부스 운영 학급", task: "필요 물품 [물품 신청] 탭에 등록하고 견적 링크 첨부하기", dday: "09.10(수)까지" }
+      ],
+      monthlyRoles: [
+        { id: 1, role: "회장단 (회장/부회장)", desc: "정기 총회 회의 진행, 교장선생님과의 대화 참석 및 학생 소리함 안건 심의" },
+        { id: 2, role: "기획·행사부", desc: "9월 가을 퀴즈 부스 운영 계획 수립 및 필요 물품 신청서 정리" },
+        { id: 3, role: "홍보·안전부", desc: "등굣길 안전 캠페인 피켓 제작 및 복도 우측통행 바른말 지킴이 활동" },
+        { id: 4, role: "환경·봉사부", desc: "급식실 잔반 줄이기 스티커 판넬 운영 및 분리수거 상태 모니터링" }
+      ],
+      departments: [
+        {
+          id: 1,
+          name: "회장단",
+          leader: "전교회장 6-1 김민수 / 전교부회장 6-2 박지민, 5-1 이준호",
+          members: "학생자치회 임원진",
+          role: "학생자치회 정기 총회 주재, 학교 주요 정책 학생 의견 대변"
+        },
+        {
+          id: 2,
+          name: "기획·행사부",
+          leader: "부장 6-3 강서준 / 차장 5-2 김하은",
+          members: "6-4 이도윤, 5-4 박서연, 4-1 윤시우, 4-3 한다온",
+          role: "가을 축제 부스, 전교생 퀴즈 대회 및 계절별 자치 행사 기획/진행"
+        },
+        {
+          id: 3,
+          name: "홍보·방송부",
+          leader: "부장 6-5 정예원 / 차장 5-3 오지후",
+          members: "6-6 최민혁, 5-5 배수아, 4-2 신지유, 4-4 임건우",
+          role: "자치회 소식지 발행, 행사 포스터 제작 및 아침 자치 방송 홍보"
+        },
+        {
+          id: 4,
+          name: "환경·봉사부",
+          leader: "부장 6-2 송지안 / 차장 5-1 고태양",
+          members: "6-1 류승우, 5-4 정서하, 4-2 백승현, 4-4 장채원",
+          role: "급식실 잔반 제로 챌린지 운영 및 깨끗한 분리수거 지킴이 활동"
+        },
+        {
+          id: 5,
+          name: "체육·안전부",
+          leader: "부장 6-4 황동현 / 차장 5-5 박도현",
+          members: "6-5 김서진, 5-2 이재원, 4-1 손채은, 4-3 조민재",
+          role: "점심시간 운동장 이용 질서 지도 및 등굣길 교통/복도 통행 안전 캠페인"
+        }
+      ]
+    };
+
+    window.addEventListener('DOMContentLoaded', () => {
+      restoreSession();
+      renderHomeView();
+      renderBudgetView();
+      renderItemRequests();
+      syncWithSupabase();
+    });
+
+    // ⭐️ 네트워크 지연 시에도 로그인이 막히지 않도록 안전한 동기화 처리
+    async function syncWithSupabase() {
+      if (!supabaseClient) return;
+      try {
+        const { data: agendaData } = await supabaseClient.from('agendas').select('*').order('id', { ascending: false });
+        if (agendaData) {
+          agendas = agendaData.map(item => ({
+            id: item.id,
+            title: item.title,
+            desc: item.description,
+            status: "의견 수렴 중",
+            date: new Date(item.created_at).toLocaleDateString('ko-KR')
+          }));
+          localStorage.setItem('sc_agendas_v2', JSON.stringify(agendas));
+          renderAgendas();
+          populateAgendaSelect();
+          if (document.getElementById('admin-agenda-list')) renderAdminAgendaList();
+        }
+
+        const { data: storeData } = await supabaseClient.from('council_store').select('*');
+        if (storeData && storeData.length > 0) {
+          storeData.forEach(row => {
+            if (row.key === 'home_data' && row.value) homeData = row.value;
+            if (row.key === 'expenses' && row.value) expenses = row.value;
+            if (row.key === 'total_budget' && row.value) totalBudget = Number(row.value);
+            if (row.key === 'item_requests' && row.value) itemRequests = row.value;
+            if (row.key === 'student_passwords' && row.value) studentPasswords = row.value;
+          });
+
+          localStorage.setItem('sc_home_data_v2', JSON.stringify(homeData));
+          localStorage.setItem('sc_expenses_v2', JSON.stringify(expenses));
+          localStorage.setItem('sc_total_budget', totalBudget.toString());
+          localStorage.setItem('sc_item_requests_v2', JSON.stringify(itemRequests));
+          localStorage.setItem('sc_student_pws_v1', JSON.stringify(studentPasswords));
+
+          renderHomeView();
+          renderBudgetView();
+          renderItemRequests();
+          if (currentRole === 'teacher') renderAdminHomeManagement();
+        }
+      } catch (err) {
+        console.warn("Supabase fetch failed (로컬 캐시 사용):", err);
+      }
+    }
+
+    async function pushToCloudStore(key, value) {
+      if (!supabaseClient) return;
+      try {
+        await supabaseClient.from('council_store').upsert({ key, value });
+      } catch (e) {
+        console.error("클라우드 저장 에러:", e);
+      }
+    }
+
+    // ==========================================
+    // 🏠 홈 화면 렌더링
+    // ==========================================
+    function renderHomeView() {
+      const m = homeData.meeting || {};
+      document.getElementById('home-meeting-title').innerText = m.title || "수영초 학생자치회 정기 총회";
+      document.getElementById('home-meeting-date').innerText = m.date || "일시 미정";
+      document.getElementById('home-meeting-place').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${m.place || "미정"}`;
+      document.getElementById('home-meeting-agenda').innerText = `주요 안건: ${m.agenda || "안건 협의 중"}`;
+      document.getElementById('home-meeting-prep').innerText = m.prep || "필기도구";
+
+      renderCalendar();
+
+      const taskList = document.getElementById('home-class-tasks-list');
+      if (homeData.classTasks.length === 0) {
+        taskList.innerHTML = `<p style="font-size:13px; color:var(--text-sub);">현재 등록된 학급 과제가 없습니다.</p>`;
+      } else {
+        taskList.innerHTML = homeData.classTasks.map(t => `
+          <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+            <div>
+              <span style="font-size:11px; font-weight:700; background:#EEF2FF; color:var(--primary); padding:2px 6px; border-radius:4px;">${t.target}</span>
+              <div style="font-size:13px; font-weight:700; color:#1E293B; margin-top:4px;">${t.task}</div>
+            </div>
+            <span style="font-size:11px; font-weight:800; color:#EF4444; white-space:nowrap; background:#FEF2F2; padding:3px 6px; border-radius:6px;">${t.dday}</span>
+          </div>
+        `).join('');
+      }
+
+      const roleGrid = document.getElementById('home-monthly-roles-grid');
+      if (homeData.monthlyRoles.length === 0) {
+        roleGrid.innerHTML = `<p style="font-size:13px; color:var(--text-sub);">등록된 역할 안내가 없습니다.</p>`;
+      } else {
+        roleGrid.innerHTML = homeData.monthlyRoles.map(r => `
+          <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:12px; padding:16px;">
+            <div style="font-size:14px; font-weight:800; color:var(--primary); margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+              <i class="fa-solid fa-user-tag"></i> ${r.role}
+            </div>
+            <p style="font-size:13px; color:#475569; line-height:1.5;">${r.desc}</p>
+          </div>
+        `).join('');
+      }
+
+      const deptGrid = document.getElementById('home-department-grid');
+      const deptCountEl = document.getElementById('home-dept-count');
+      const depts = homeData.departments || [];
+      if (deptCountEl) deptCountEl.innerText = depts.length;
+
+      if (depts.length === 0) {
+        deptGrid.innerHTML = `<p style="font-size:13px; color:var(--text-sub); grid-column:1/-1;">등록된 부서 정보가 없습니다. 선생님 관리관에서 부서를 등록해주세요.</p>`;
+      } else {
+        deptGrid.innerHTML = depts.map(d => `
+          <div style="background:#FFFFFF; border:1.5px solid var(--border); border-radius:14px; padding:18px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span style="font-size:15px; font-weight:800; color:#1E1B4B; background:#EEF2FF; padding:4px 10px; border-radius:8px; display:inline-flex; align-items:center; gap:6px;">
+                  <i class="fa-solid fa-building-user" style="color:var(--primary);"></i> ${d.name}
+                </span>
+              </div>
+              
+              <div style="margin-bottom:8px;">
+                <div style="font-size:11px; font-weight:700; color:#6366F1; margin-bottom:2px;"><i class="fa-solid fa-crown"></i> 부장 / 차장</div>
+                <div style="font-size:13px; font-weight:700; color:#1E293B;">${d.leader || "미지정"}</div>
+              </div>
+
+              <div style="margin-bottom:10px; background:#F8FAFC; border-radius:8px; padding:8px 10px; border:1px dashed #E2E8F0;">
+                <div style="font-size:11px; font-weight:700; color:#64748B; margin-bottom:3px;"><i class="fa-solid fa-user-group"></i> 소속 부원</div>
+                <div style="font-size:12px; color:#334155; line-height:1.4;">${d.members || "부원 등록 대기 중"}</div>
+              </div>
+            </div>
+
+            <div style="padding-top:8px; border-top:1px solid #F1F5F9; font-size:12px; color:#64748B;">
+              <i class="fa-solid fa-circle-check" style="color:#10B981;"></i> <b>주요 업무:</b> ${d.role || "활동 기획 및 운영"}
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function changeCalMonth(delta) {
+      if (delta === 0) {
+        currentCalDate = new Date();
+      } else {
+        currentCalDate.setMonth(currentCalDate.getMonth() + delta);
+      }
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      const year = currentCalDate.getFullYear();
+      const month = currentCalDate.getMonth();
+      document.getElementById('cal-month-title').innerText = `${year}년 ${month + 1}월`;
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const lastDate = new Date(year, month + 1, 0).getDate();
+      const prevLastDate = new Date(year, month, 0).getDate();
+
+      const grid = document.getElementById('calendar-days-grid');
+      grid.innerHTML = "";
+
+      const today = new Date();
+
+      for (let i = firstDay - 1; i >= 0; i--) {
+        const dayNum = prevLastDate - i;
+        grid.innerHTML += `<div class="cal-cell other-month">${dayNum}</div>`;
+      }
+
+      for (let d = 1; d <= lastDate; d++) {
+        const isToday = (today.getFullYear() === year && today.getMonth() === month && today.getDate() === d);
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        
+        const dayEvents = (homeData.events || []).filter(e => e.date === dateStr);
+        let eventHtml = '';
+        if (dayEvents.length > 0) {
+          eventHtml = dayEvents.map(e => `<div class="cal-event-pill" title="${e.title}">${e.title}</div>`).join('');
+        }
+
+        grid.innerHTML += `
+          <div class="cal-cell ${isToday ? 'today' : ''}" onclick="showDateEvents('${dateStr}')">
+            <span>${d}</span>
+            ${eventHtml}
+          </div>
+        `;
+      }
+
+      const totalCells = firstDay + lastDate;
+      const nextDays = (totalCells % 7 === 0) ? 0 : 7 - (totalCells % 7);
+      for (let n = 1; n <= nextDays; n++) {
+        grid.innerHTML += `<div class="cal-cell other-month">${n}</div>`;
+      }
+
+      const upcomingContainer = document.getElementById('cal-upcoming-list');
+      const curMonthEvents = (homeData.events || []).filter(e => e.date.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`));
+      
+      if (curMonthEvents.length === 0) {
+        upcomingContainer.innerHTML = `<p style="font-size:12px; color:var(--text-sub);">이번 달 등록된 자치회 일정이 없습니다.</p>`;
+      } else {
+        upcomingContainer.innerHTML = curMonthEvents.map(e => `
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; padding:4px 0; border-bottom:1px dashed #F1F5F9;">
+            <span style="font-weight:700; color:#1E293B;"><span style="color:var(--primary);">[${e.type}]</span> ${e.title}</span>
+            <span style="color:#64748B;">${e.date}</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    function showDateEvents(dateStr) {
+      const evs = (homeData.events || []).filter(e => e.date === dateStr);
+      if (evs.length > 0) {
+        const msg = evs.map(e => `• [${e.type}] ${e.title}`).join('\n');
+        showCustomDialog({ title: `📅 ${dateStr} 자치회 일정`, message: msg });
+      }
+    }
+
+    // ==========================================
+    // ⭐️ 교사용 대시보드 관리
+    // ==========================================
+    function renderAdminHomeManagement() {
+      const m = homeData.meeting || {};
+      document.getElementById('admin-meeting-title').value = m.title || "";
+      document.getElementById('admin-meeting-date').value = m.date || "";
+      document.getElementById('admin-meeting-place').value = m.place || "";
+      document.getElementById('admin-meeting-prep').value = m.prep || "";
+      document.getElementById('admin-meeting-agenda').value = m.agenda || "";
+
+      const evList = document.getElementById('admin-cal-event-list');
+      evList.innerHTML = (homeData.events || []).map((e, idx) => `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#F8FAFC; border:1px solid #E2E8F0; padding:8px 12px; border-radius:8px; margin-bottom:6px; font-size:13px;">
+          <span><b>[${e.type}]</b> ${e.title} (${e.date})</span>
+          <button onclick="deleteCalendarEvent(${idx})" class="btn btn-danger" style="padding:4px 8px; font-size:11px;">삭제</button>
+        </div>
+      `).join('');
+
+      const tList = document.getElementById('admin-task-list');
+      tList.innerHTML = (homeData.classTasks || []).map((t, idx) => `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#F8FAFC; border:1px solid #E2E8F0; padding:8px 12px; border-radius:8px; margin-bottom:6px; font-size:13px;">
+          <div>
+            <b>[${t.target}]</b> ${t.task} <span style="color:#EF4444; font-weight:700;">(~${t.dday})</span>
+          </div>
+          <button onclick="deleteClassTask(${idx})" class="btn btn-danger" style="padding:4px 8px; font-size:11px;">삭제</button>
+        </div>
+      `).join('');
+
+      const rList = document.getElementById('admin-role-list');
+      rList.innerHTML = (homeData.monthlyRoles || []).map((r, idx) => `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#F8FAFC; border:1px solid #E2E8F0; padding:8px 12px; border-radius:8px; margin-bottom:6px; font-size:13px;">
+          <div>
+            <b>${r.role}</b>: ${r.desc}
+          </div>
+          <button onclick="deleteMonthlyRole(${idx})" class="btn btn-danger" style="padding:4px 8px; font-size:11px;">삭제</button>
+        </div>
+      `).join('');
+
+      const dList = document.getElementById('admin-dept-list');
+      dList.innerHTML = (homeData.departments || []).map((d, idx) => `
+        <div style="background:#F8FAFC; border:1px solid #E2E8F0; padding:10px 14px; border-radius:10px; margin-bottom:8px; font-size:13px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <b style="color:var(--primary); font-size:14px;"><i class="fa-solid fa-users"></i> ${d.name}</b>
+            <button onclick="deleteDepartment(${idx})" class="btn btn-danger" style="padding:4px 8px; font-size:11px;">부서 삭제</button>
+          </div>
+          <div style="font-size:12px; color:#1E293B; margin-bottom:2px;"><b>부장/차장:</b> ${d.leader}</div>
+          <div style="font-size:12px; color:#475569; margin-bottom:2px;"><b>부원:</b> ${d.members}</div>
+          <div style="font-size:11px; color:#64748B;"><b>주요 역할:</b> ${d.role}</div>
+        </div>
+      `).join('');
+
+      renderAdminPwResetList();
+    }
+
+    function renderAdminPwResetList() {
+      const container = document.getElementById('admin-pw-reset-list');
+      const keys = Object.keys(studentPasswords);
+      if (keys.length === 0) {
+        container.innerHTML = `<p style="font-size:12px; color:#92400E;">아직 개별 비밀번호를 설정한 학생이 없습니다. (모두 1234로 접속 가능)</p>`;
+        return;
+      }
+      container.innerHTML = `
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          ${keys.map(name => `
+            <div style="background:white; border:1px solid #FDE68A; padding:6px 12px; border-radius:8px; display:inline-flex; align-items:center; gap:8px; font-size:12px;">
+              <span><b>${name}</b> (설정됨)</span>
+              <button onclick="resetStudentPassword('${name}')" class="btn btn-secondary" style="padding:2px 6px; font-size:11px; color:#B45309; background:#FEF3C7;">1234로 초기화</button>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    async function resetStudentPassword(studentName) {
+      showCustomDialog({
+        title: "비밀번호 초기화",
+        message: `[${studentName}] 학생의 비밀번호를 기본 번호인 '1234'로 초기화하시겠습니까?`,
+        showCancel: true,
+        onConfirm: async () => {
+          delete studentPasswords[studentName];
+          localStorage.setItem('sc_student_pws_v1', JSON.stringify(studentPasswords));
+          await pushToCloudStore('student_passwords', studentPasswords);
+          renderAdminPwResetList();
+          showToast(`[${studentName}] 학생 비밀번호가 1234로 초기화되었습니다.`);
+        }
+      });
+    }
+
+    async function saveMeetingNotice() {
+      homeData.meeting = {
+        title: document.getElementById('admin-meeting-title').value.trim(),
+        date: document.getElementById('admin-meeting-date').value.trim(),
+        place: document.getElementById('admin-meeting-place').value.trim(),
+        prep: document.getElementById('admin-meeting-prep').value.trim(),
+        agenda: document.getElementById('admin-meeting-agenda').value.trim()
+      };
+      localStorage.setItem('sc_home_data_v2', JSON.stringify(homeData));
+      await pushToCloudStore('home_data', homeData);
+      renderHomeView();
+      showToast("다음 회의 안내 배너가 성공적으로 저장되었습니다!");
+    }
+
+    async function addCalendarEvent() {
+      const date = document.getElementById('admin-cal-date').value;
+      const title = document.getElementById('admin-cal-title').value.trim();
+      const type = document.getElementById('admin-cal-type').value;
+
+      if (!date || !title) {
+        showCustomDialog({ title: "입력 확인", message: "일정 날짜와 제목을 입력해주세요." });
+        return;
+      }
+
+      homeData.events.push({ id: Date.now(), date, title, type });
+      homeData.events.sort((a, b) => a.date.localeCompare(b.date));
+      localStorage.setItem('sc_home_data_v2', JSON.stringify(homeData));
+      await pushToCloudStore('home_data', homeData);
+
+      document.getElementById('admin-cal-title').value = "";
+      renderHomeView();
+      renderAdminHomeManagement();
+      showToast("새 자치회 일정이 달력에 등록되었습니다!");
+    }
+
+    async function deleteCalendarEvent(idx) {
+      homeData.events.splice(idx, 1);
+      localStorage.setItem('sc_home_data_v2', JSON.stringify(homeData));
+      await pushToCloudStore('home_data', homeData);
+      renderHomeView();
+      renderAdminHomeManagement();
+      showToast("일정이 삭제되었습니다.");
+    }
+
+    async function addClassTask() {
+      const target = document.getElementById('admin-task-target').value.trim();
+      const task = document.getElementById('admin-task-content').value.trim();
+      const dday = document.getElementById('admin-task-dday').value.trim();
+
+      if (!target || !task) {
+        showCustomDialog({ title: "입력 확인", message: "대상 학급과 할 일 내용을 입력해주세요." });
+        return;
+      }
+
+      homeData.classTasks.push({ id: Date.now(), target, task, dday: dday || "상시" });
+      localStorage.setItem('sc_home_data_v2', JSON.stringify(homeData));
+      await pushToCloudStore('home_data', homeData);
+
+      document.getElementById('admin-task-target').value = "";
+      document.getElementById('admin-task-content').value = "";
+      document.getElementById('admin-task-dday').value = "";
+      renderHomeView();
+      renderAdminHomeManagement();
+      showToast("새로운 학급 실천 과제가 등록되었습니다!");
+    }
+
+    async function deleteClassTask(idx) {
+      homeData.classTasks.splice(idx, 1);
+      localStorage.setItem('sc_home_data_v2', JSON.stringify(homeData));
+      await pushToCloudStore('home_data', homeData);
+      renderHomeView();
+      renderAdminHomeManagement();
+      showToast("학급 과제가 삭제되었습니다.");
+    }
+
+    async function addMonthlyRole() {
+      const role = document.getElementById('admin-role-title').value.trim();
+      const desc = document.getElementById('admin-role-desc').value.trim();
+
+      if (!role || !desc) {
+        showCustomDialog({ title: "입력 확인", message: "부서/직책명과 설명을 입력해주세요." });
+        return;
+      }
+
+      homeData.monthlyRoles.push({ id: Date.now(), role, desc });
+      localStorage.setItem('sc_home_data_v2', JSON.stringify(homeData));
+      await pushToCloudStore('home_data', homeData);
+
+      document.getElementById('admin-role-title').value = "";
+      document.getElementById('admin-role-desc').value = "";
+      renderHomeView();
+      renderAdminHomeManagement();
+      showToast("새로운 역할 가이드가 추가되었습니다!");
+    }
+
+    async function deleteMonthlyRole(idx) {
+      homeData.monthlyRoles.splice(idx, 1);
+      localStorage.setItem('sc_home_data_v2', JSON.stringify(homeData));
+      await pushToCloudStore('home_data', homeData);
+      renderHomeView();
+      renderAdminHomeManagement();
+      showToast("역할 가이드가 삭제되었습니다.");
+    }
+
+    async function addDepartment() {
+      const name = document.getElementById('admin-dept-name').value.trim();
+      const leader = document.getElementById('admin-dept-leader').value.trim();
+      const members = document.getElementById('admin-dept-members').value.trim();
+      const role = document.getElementById('admin-dept-role').value.trim();
+
+      if (!name || !leader) {
+        showCustomDialog({ title: "입력 확인", message: "부서명과 부장/차장 명단을 입력해주세요." });
+        return;
+      }
+
+      if (!homeData.departments) homeData.departments = [];
+
+      homeData.departments.push({
+        id: Date.now(),
+        name,
+        leader,
+        members: members || "부원 등록 대기 중",
+        role: role || "활동 기획 및 운영"
+      });
+
+      localStorage.setItem('sc_home_data_v2', JSON.stringify(homeData));
+      await pushToCloudStore('home_data', homeData);
+
+      document.getElementById('admin-dept-name').value = "";
+      document.getElementById('admin-dept-leader').value = "";
+      document.getElementById('admin-dept-members').value = "";
+      document.getElementById('admin-dept-role').value = "";
+
+      renderHomeView();
+      renderAdminHomeManagement();
+      showToast("새로운 자치회 부서 및 부원 명단이 등록되었습니다!");
+    }
+
+    function deleteDepartment(idx) {
+      showCustomDialog({
+        title: "부서 삭제",
+        message: "이 부서와 부원 명단을 삭제하시겠습니까?",
+        icon: '<i class="fa-solid fa-trash" style="color:#EF4444;"></i>',
+        showCancel: true,
+        onConfirm: async () => {
+          homeData.departments.splice(idx, 1);
+          localStorage.setItem('sc_home_data_v2', JSON.stringify(homeData));
+          await pushToCloudStore('home_data', homeData);
+          renderHomeView();
+          renderAdminHomeManagement();
+          showToast("부서 정보가 삭제되었습니다.");
+        }
+      });
+    }
+  
     function selectLoginRole(role) {
       currentLoginRoleTab = role;
       const studentTab = document.getElementById('role-tab-student');
@@ -1335,7 +1909,8 @@
       }
     }
   
-    async function handleStudentLoginSubmit(e) {
+    // ⭐️ 학생 로그인 처리 (비동기 지연 없이 확실하게 작동)
+    function handleStudentLoginSubmit(e) {
       e.preventDefault();
       const inputName = document.getElementById('login-student-name-input').value.trim();
       const pw = document.getElementById('login-student-pw').value.trim();
@@ -1345,7 +1920,6 @@
         return;
       }
 
-      await syncWithSupabase();
       const userCustomPw = studentPasswords[inputName];
 
       if (!userCustomPw) {
@@ -1404,7 +1978,7 @@
 
       studentPasswords[pendingStudentName] = newPw;
       localStorage.setItem('sc_student_pws_v1', JSON.stringify(studentPasswords));
-      await pushToCloudStore('student_passwords', studentPasswords);
+      pushToCloudStore('student_passwords', studentPasswords);
 
       closeModal('set-pw-modal');
 
@@ -1420,7 +1994,7 @@
       pendingStudentName = null;
     }
   
-    async function handleTeacherLoginSubmit(e) {
+    function handleTeacherLoginSubmit(e) {
       e.preventDefault();
       const pw = document.getElementById('login-teacher-pw').value;
   
@@ -1437,11 +2011,10 @@
       switchTab('home');
       showToast("🔐 지도교사 관리관으로 입장하셨습니다.");
 
-      // ⭐️ 교사 최초 로그인 시 클라우드가 비어있다면 로컬의 최신 세팅값을 클라우드로 자동 업로드
-      await pushToCloudStore('home_data', homeData);
-      await pushToCloudStore('total_budget', totalBudget);
-      await pushToCloudStore('expenses', expenses);
-      await pushToCloudStore('item_requests', itemRequests);
+      pushToCloudStore('home_data', homeData);
+      pushToCloudStore('total_budget', totalBudget);
+      pushToCloudStore('expenses', expenses);
+      pushToCloudStore('item_requests', itemRequests);
     }
   
     function restoreSession() {
@@ -1508,7 +2081,7 @@
       }
     }
   
-    async function switchTab(tabName) {
+    function switchTab(tabName) {
       if (!currentRole && tabName !== 'login-gate') {
         tabName = 'login-gate';
       }
@@ -1520,10 +2093,6 @@
       document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll(`.nav-btn[onclick*="'${tabName}'"]`).forEach(btn => btn.classList.add('active'));
   
-      if (tabName !== 'login-gate') {
-        await syncWithSupabase();
-      }
-
       if (tabName === 'home') renderHomeView();
       if (tabName === 'agendas') renderAgendas();
       if (tabName === 'budget') renderBudgetView();
@@ -1537,6 +2106,676 @@
       }
       if (tabName === 'admin-items') renderAdminItemRequests();
       if (tabName === 'admin-opinions') renderAdminOpinionList();
+    }
+  
+    function renderAgendas() {
+      const container = document.getElementById('agenda-grid-container');
+      const countDisplay = document.getElementById('agenda-count');
+      countDisplay.innerText = agendas.length;
+  
+      if (agendas.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align:center; padding: 48px 20px; background:white; border-radius:16px; border:2px dashed var(--border); color:var(--text-sub);">
+            <i class="fa-solid fa-clipboard-list" style="font-size:42px; margin-bottom:12px; color:#CBD5E1;"></i>
+            <h3 style="font-size:17px; font-weight:700; color:#475569; margin-bottom:6px;">현재 등록된 자치회 안건이 없습니다</h3>
+            <p style="font-size:13px;">선생님께서 새로운 토의 안건을 등록하면 여기에 나타납니다.</p>
+          </div>
+        `;
+        return;
+      }
+  
+      container.innerHTML = agendas.map(ag => {
+        let statusClass = 'status-open';
+        if (ag.status === '심의 중') statusClass = 'status-review';
+        if (ag.status === '반영 완료') statusClass = 'status-done';
+  
+        return `
+          <div class="agenda-card" onclick="openAgendaModal(${ag.id})">
+            <div>
+              <span class="status-pill ${statusClass}">${ag.status}</span>
+              <h3 class="agenda-title">${ag.title}</h3>
+              <p class="agenda-preview">${ag.desc}</p>
+            </div>
+            <div class="agenda-meta">
+              <span><i class="fa-regular fa-calendar"></i> ${ag.date || '최신'}</span>
+              <span style="color:var(--primary); font-weight:700;">상세보기 및 의견 남기기 →</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  
+    function openAgendaModal(id) {
+      const agenda = agendas.find(a => a.id === id);
+      if (!agenda) return;
+      selectedAgendaForModal = agenda;
+  
+      document.getElementById('modal-title').innerText = agenda.title;
+      document.getElementById('modal-desc').innerText = agenda.desc;
+      
+      const statusPill = document.getElementById('modal-status');
+      statusPill.innerText = agenda.status;
+      statusPill.className = 'status-pill ' + (agenda.status === '의견 수렴 중' ? 'status-open' : (agenda.status === '심의 중' ? 'status-review' : 'status-done'));
+  
+      const actionBtn = document.getElementById('modal-submit-action-btn');
+      if (currentRole === 'teacher') {
+        actionBtn.classList.add('hidden');
+      } else {
+        actionBtn.classList.remove('hidden');
+      }
+  
+      openModal('agenda-modal');
+    }
+  
+    function goToSubmitFromModal() {
+      closeModal('agenda-modal');
+      switchTab('submit');
+      if (selectedAgendaForModal) {
+        document.getElementById('form-agenda-select').value = selectedAgendaForModal.title;
+      }
+    }
+  
+    function populateAgendaSelect() {
+      const select = document.getElementById('form-agenda-select');
+      if (agendas.length === 0) {
+        select.innerHTML = `<option value="">등록된 안건이 없습니다</option>`;
+        return;
+      }
+      select.innerHTML = agendas.map(a => `<option value="${a.title}">${a.title}</option>`).join('');
+    }
+
+    function renderBudgetView() {
+      const spentTotal = expenses.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+      const remaining = totalBudget - spentTotal;
+      const spentPercent = totalBudget > 0 ? Math.min(100, Math.round((spentTotal / totalBudget) * 100)) : 0;
+
+      document.getElementById('budget-total-display').innerText = `${totalBudget.toLocaleString()}원`;
+      document.getElementById('budget-spent-display').innerText = `${spentTotal.toLocaleString()}원`;
+      document.getElementById('budget-remaining-display').innerText = `${remaining.toLocaleString()}원`;
+      document.getElementById('budget-percent-text').innerText = `${spentPercent}% (${spentTotal.toLocaleString()}원 / ${totalBudget.toLocaleString()}원)`;
+      
+      const pBar = document.getElementById('budget-progress-bar');
+      pBar.style.width = `${spentPercent}%`;
+      if (spentPercent > 80) {
+        pBar.style.background = '#F87171';
+      } else if (spentPercent > 50) {
+        pBar.style.background = '#FBBF24';
+      } else {
+        pBar.style.background = '#4ADE80';
+      }
+
+      const tbody = document.getElementById('budget-history-tbody');
+      if (expenses.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:24px; color:#94A3B8;">아직 등록된 예산 지출 내역이 없습니다.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = expenses.map(item => `
+        <tr>
+          <td style="color:#64748B; font-size:12px;">${item.date}</td>
+          <td style="font-weight:700; color:#1E293B;">${item.title}</td>
+          <td style="color:#475569; font-size:13px;">${item.desc || '-'}</td>
+          <td style="text-align:right; font-weight:800; color:#EF4444;">-${Number(item.amount).toLocaleString()}원</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderAdminBudgetManagement() {
+      document.getElementById('admin-total-budget-input').value = totalBudget;
+      const container = document.getElementById('admin-expense-list');
+
+      if (expenses.length === 0) {
+        container.innerHTML = `<p style="font-size:13px; color:var(--text-sub); padding:8px 0;">등록된 지출 내역이 없습니다.</p>`;
+        return;
+      }
+
+      container.innerHTML = expenses.map((item, idx) => `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:white; border:1px solid #E2E8F0; padding:10px 14px; border-radius:10px; margin-bottom:6px;">
+          <div>
+            <span style="font-size:11px; color:#64748B;">${item.date}</span>
+            <div style="font-weight:700; font-size:14px; color:#1E293B;">${item.title} (${Number(item.amount).toLocaleString()}원)</div>
+            <div style="font-size:12px; color:#64748B;">${item.desc}</div>
+          </div>
+          <button onclick="deleteExpenseItem(${idx})" class="btn btn-danger" style="font-size:11px; padding:4px 8px;">
+            <i class="fa-solid fa-trash"></i> 삭제
+          </button>
+        </div>
+      `).join('');
+    }
+
+    async function saveTotalBudget() {
+      const inputVal = document.getElementById('admin-total-budget-input').value.replace(/[^0-9]/g, '');
+      if (!inputVal) {
+        showCustomDialog({ title: "예산 입력", message: "총 예산 금액을 숫자로 입력해주세요." });
+        return;
+      }
+      totalBudget = parseInt(inputVal, 10);
+      localStorage.setItem('sc_total_budget', totalBudget.toString());
+      await pushToCloudStore('total_budget', totalBudget);
+      renderBudgetView();
+      showToast(`총 배정 예산이 ${totalBudget.toLocaleString()}원으로 변경되었습니다.`);
+    }
+
+    async function addExpenseItem() {
+      const title = document.getElementById('expense-title').value.trim();
+      const rawAmount = document.getElementById('expense-amount').value.replace(/[^0-9]/g, '');
+      const date = document.getElementById('expense-date').value.trim() || new Date().toLocaleDateString('ko-KR');
+      const desc = document.getElementById('expense-desc').value.trim();
+
+      if (!title || !rawAmount) {
+        showCustomDialog({ title: "입력 확인", message: "지출 항목명과 금액을 모두 입력해주세요." });
+        return;
+      }
+
+      const newExpense = {
+        id: Date.now(),
+        date: date,
+        title: title,
+        amount: parseInt(rawAmount, 10),
+        desc: desc
+      };
+
+      expenses.unshift(newExpense);
+      localStorage.setItem('sc_expenses_v2', JSON.stringify(expenses));
+      await pushToCloudStore('expenses', expenses);
+
+      document.getElementById('expense-title').value = "";
+      document.getElementById('expense-amount').value = "";
+      document.getElementById('expense-date').value = "";
+      document.getElementById('expense-desc').value = "";
+
+      renderBudgetView();
+      renderAdminBudgetManagement();
+      showToast("새 지출 내역이 성공적으로 등록되었습니다!");
+    }
+
+    function deleteExpenseItem(idx) {
+      showCustomDialog({
+        title: "지출 내역 삭제",
+        message: "이 지출 내역을 삭제하시겠습니까?",
+        icon: '<i class="fa-solid fa-triangle-exclamation" style="color:#EF4444;"></i>',
+        showCancel: true,
+        onConfirm: async () => {
+          expenses.splice(idx, 1);
+          localStorage.setItem('sc_expenses_v2', JSON.stringify(expenses));
+          await pushToCloudStore('expenses', expenses);
+          renderBudgetView();
+          renderAdminBudgetManagement();
+          showToast("지출 내역이 삭제되었습니다.");
+        }
+      });
+    }
+
+    function calculateItemTotal() {
+      const qty = parseInt(document.getElementById('item-qty').value, 10) || 0;
+      const price = parseInt(document.getElementById('item-price').value, 10) || 0;
+      const total = qty * price;
+      document.getElementById('item-total-preview').value = `${total.toLocaleString()}원`;
+    }
+
+    async function handleItemRequestSubmit(e) {
+      e.preventDefault();
+
+      const itemName = document.getElementById('item-name').value.trim();
+      const eventName = document.getElementById('item-event').value.trim();
+      let link = document.getElementById('item-link').value.trim();
+      const qty = parseInt(document.getElementById('item-qty').value, 10) || 1;
+      const price = parseInt(document.getElementById('item-price').value, 10) || 0;
+      const applicant = document.getElementById('item-applicant').value.trim();
+      const memo = document.getElementById('item-memo').value.trim();
+
+      if (!itemName || !eventName || !link || !applicant) {
+        showCustomDialog({ title: "입력 확인", message: "필수 항목을 모두 입력해주세요." });
+        return;
+      }
+
+      if (!link.startsWith("http://") && !link.startsWith("https://")) {
+        link = "https://" + link;
+      }
+
+      const total = qty * price;
+
+      const newRequest = {
+        id: Date.now(),
+        date: new Date().toLocaleDateString('ko-KR'),
+        class_name: currentClass || "자율 신청",
+        applicant: applicant,
+        itemName: itemName,
+        event: eventName,
+        link: link,
+        qty: qty,
+        price: price,
+        total: total,
+        memo: memo,
+        status: "검토 중"
+      };
+
+      itemRequests.unshift(newRequest);
+      localStorage.setItem('sc_item_requests_v2', JSON.stringify(itemRequests));
+      await pushToCloudStore('item_requests', itemRequests);
+
+      document.getElementById('item-name').value = "";
+      document.getElementById('item-event').value = "";
+      document.getElementById('item-link').value = "";
+      document.getElementById('item-qty').value = "";
+      document.getElementById('item-price').value = "";
+      document.getElementById('item-applicant').value = "";
+      document.getElementById('item-memo').value = "";
+      document.getElementById('item-total-preview').value = "0원";
+
+      renderItemRequests();
+      showToast("🛍️ 물품 구매 신청이 성공적으로 접수되었습니다!");
+    }
+
+    function renderItemRequests() {
+      const container = document.getElementById('student-item-list');
+      const countEl = document.getElementById('item-request-count');
+      if (countEl) countEl.innerText = itemRequests.length;
+
+      if (!container) return;
+
+      if (itemRequests.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:32px 16px; color:var(--text-sub); background:#F8FAFC; border-radius:12px; border:1px dashed var(--border);">
+            <i class="fa-solid fa-basket-shopping" style="font-size:32px; color:#CBD5E1; margin-bottom:8px;"></i>
+            <p style="font-size:13px;">아직 신청된 물품 내역이 없습니다.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = itemRequests.map(item => {
+        let statusBadge = `<span class="status-pill status-review"><i class="fa-solid fa-hourglass-half"></i> ${item.status}</span>`;
+        if (item.status === '주문 완료') statusBadge = `<span class="status-pill status-open"><i class="fa-solid fa-truck-ramp-box"></i> 주문 완료</span>`;
+        if (item.status === '수령 완료') statusBadge = `<span class="status-pill status-done"><i class="fa-solid fa-box-open"></i> 수령 완료</span>`;
+        if (item.status === '반려') statusBadge = `<span class="status-pill" style="background:#FEE2E2; color:#DC2626;"><i class="fa-solid fa-ban"></i> 반려</span>`;
+
+        return `
+          <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:8px; margin-bottom:6px;">
+              <div>
+                ${statusBadge}
+                <span style="font-weight:800; font-size:15px; color:#1E293B; margin-left:4px;">${item.itemName}</span>
+              </div>
+              <span style="font-size:14px; font-weight:800; color:var(--primary);">${Number(item.total).toLocaleString()}원 (${item.qty}개)</span>
+            </div>
+            
+            <div style="font-size:12px; color:var(--text-sub); display:flex; flex-wrap:wrap; gap:12px; margin-bottom:8px;">
+              <span><i class="fa-solid fa-school"></i> ${item.class_name} (${item.applicant})</span>
+              <span><i class="fa-solid fa-calendar-check"></i> 사용 목적: <b>${item.event}</b></span>
+              <span><i class="fa-regular fa-clock"></i> ${item.date}</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; padding-top:8px; border-top:1px dashed #E2E8F0; font-size:12px;">
+              <a href="${item.link}" target="_blank" rel="noopener noreferrer" style="color:#2563EB; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> 상품 페이지 확인하기
+              </a>
+              ${item.memo ? `<span style="color:#64748B;">비고: ${item.memo}</span>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderAdminItemRequests() {
+      const tbody = document.getElementById('admin-items-tbody');
+      const sumDisplay = document.getElementById('admin-item-sum-display');
+
+      const totalSum = itemRequests.reduce((sum, item) => sum + (Number(item.total) || 0), 0);
+      if (sumDisplay) sumDisplay.innerText = `${totalSum.toLocaleString()}원`;
+
+      if (!tbody) return;
+
+      if (itemRequests.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:24px; color:#94A3B8;">신청된 물품이 없습니다.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = itemRequests.map((item, idx) => `
+        <tr>
+          <td>
+            <select onchange="changeItemStatus(${idx}, this.value)" style="padding:6px; font-size:12px; border-radius:6px; font-weight:700; background:white;">
+              <option value="검토 중" ${item.status === '검토 중' ? 'selected' : ''}>⏳ 검토 중</option>
+              <option value="주문 완료" ${item.status === '주문 완료' ? 'selected' : ''}>🛒 주문 완료</option>
+              <option value="수령 완료" ${item.status === '수령 완료' ? 'selected' : ''}>📦 수령 완료</option>
+              <option value="반려" ${item.status === '반려' ? 'selected' : ''}>❌ 반려</option>
+            </select>
+          </td>
+          <td><b>${item.class_name}</b><br><span style="color:#64748B; font-size:11px;">${item.applicant}</span></td>
+          <td>
+            <div style="font-weight:700; color:#1E293B;">${item.itemName}</div>
+            <div style="font-size:11px; color:#6366F1;"><i class="fa-solid fa-flag"></i> ${item.event}</div>
+          </td>
+          <td>
+            <div style="font-weight:700; color:#EF4444;">${Number(item.total).toLocaleString()}원</div>
+            <div style="font-size:11px; color:#64748B;">${Number(item.price).toLocaleString()}원 × ${item.qty}개</div>
+          </td>
+          <td>
+            <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="padding:4px 8px; font-size:11px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> 링크 열기
+            </a>
+          </td>
+          <td style="max-width:180px; font-size:12px; color:#475569;">${item.memo || '-'}</td>
+          <td>
+            <button onclick="deleteItemRequest(${idx})" class="btn btn-danger" style="padding:4px 8px; font-size:11px;">
+              <i class="fa-solid fa-trash"></i> 삭제
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function changeItemStatus(idx, newStatus) {
+      itemRequests[idx].status = newStatus;
+      localStorage.setItem('sc_item_requests_v2', JSON.stringify(itemRequests));
+      await pushToCloudStore('item_requests', itemRequests);
+      renderItemRequests();
+      showToast(`물품 상태가 '${newStatus}'(으)로 변경되었습니다.`);
+    }
+
+    function deleteItemRequest(idx) {
+      showCustomDialog({
+        title: "물품 신청 삭제",
+        message: "이 물품 신청 내역을 삭제하시겠습니까?",
+        icon: '<i class="fa-solid fa-trash" style="color:#EF4444;"></i>',
+        showCancel: true,
+        onConfirm: async () => {
+          itemRequests.splice(idx, 1);
+          localStorage.setItem('sc_item_requests_v2', JSON.stringify(itemRequests));
+          await pushToCloudStore('item_requests', itemRequests);
+          renderAdminItemRequests();
+          renderItemRequests();
+          showToast("물품 신청 내역이 삭제되었습니다.");
+        }
+      });
+    }
+  
+    async function handleOpinionSubmit(e) {
+      e.preventDefault();
+      
+      const agendaTitle = document.getElementById('form-agenda-select').value;
+      const author = document.getElementById('form-author').value;
+      const category = document.getElementById('form-category').value;
+      const content = document.getElementById('form-content').value;
+  
+      if (!agendaTitle) {
+        showCustomDialog({ title: "안건 선택", message: "의견을 작성할 안건을 선택해주세요." });
+        return;
+      }
+  
+      const newOpinion = {
+        id: Date.now(),
+        agenda: agendaTitle,
+        class_name: currentClass || "미지정",
+        author: author,
+        category: category,
+        content: content,
+        date: new Date().toLocaleDateString('ko-KR')
+      };
+  
+      submissions.unshift(newOpinion);
+      localStorage.setItem('sc_submissions_v2', JSON.stringify(submissions));
+  
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from('opinions').insert([{
+            class_name: currentClass,
+            author: author,
+            category: category,
+            content: `[${agendaTitle}] ${content}`
+          }]);
+        } catch (err) {
+          console.error("Supabase 전송 에러:", err);
+        }
+      }
+  
+      showToast("🎉 소중한 의견이 안전하게 접수되었습니다!");
+      document.getElementById('form-content').value = "";
+      switchTab('myinfo');
+    }
+  
+    async function submitSuggestion() {
+      const cat = document.getElementById('sug-category').value;
+      const author = document.getElementById('sug-author').value.trim();
+      const content = document.getElementById('sug-content').value;
+      
+      if (!author) {
+        showCustomDialog({ title: "작성자 입력", message: "작성자 이름을 입력해주세요." });
+        return;
+      }
+      
+      if (!content.trim()) {
+        showCustomDialog({ title: "내용 입력", message: "건의할 내용을 입력해주세요." });
+        return;
+      }
+      
+      const newSug = {
+        id: Date.now(),
+        agenda: `[소리함] ${cat}`,
+        class_name: currentClass || "자유 건의",
+        author: author,
+        category: "소리함 건의",
+        content: content,
+        date: new Date().toLocaleDateString('ko-KR')
+      };
+  
+      submissions.unshift(newSug);
+      localStorage.setItem('sc_submissions_v2', JSON.stringify(submissions));
+  
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from('opinions').insert([{
+            class_name: currentClass || "자유 건의",
+            author: author,
+            category: "소리함",
+            content: `[${cat}] ${content}`
+          }]);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+  
+      showToast("💌 소리함에 의견이 잘 전달되었습니다!");
+      document.getElementById('sug-content').value = "";
+      switchTab('agendas');
+    }
+  
+    function renderMySubmissions() {
+      const container = document.getElementById('my-submissions-list');
+      const filtered = submissions.filter(s => s.class_name === currentClass);
+  
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:36px; color:var(--text-sub);">
+            <i class="fa-regular fa-folder-open" style="font-size:36px; margin-bottom:8px; color:#CBD5E1;"></i>
+            <p>내 활동(${currentClass})에서 제출한 의견 기록이 없습니다.</p>
+          </div>
+        `;
+        return;
+      }
+  
+      container.innerHTML = filtered.map(item => `
+        <div class="timeline-item">
+          <div style="font-size:22px; color:var(--primary);"><i class="fa-solid fa-comment-dots"></i></div>
+          <div style="flex-grow:1;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span style="font-weight:700; font-size:14px; color:#1E293B;">${item.agenda}</span>
+              <span style="font-size:12px; color:#94A3B8;">${item.date}</span>
+            </div>
+            <div style="font-size:12px; color:var(--primary); font-weight:600; margin-bottom:6px;">
+              ${item.class_name} • ${item.author} (${item.category})
+            </div>
+            <p style="font-size:13px; color:#475569; line-height:1.5; white-space:pre-line;">${item.content}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+  
+    function loadAdminData() {
+      renderAdminAgendaList();
+      renderAdminOpinionList();
+      renderAdminPwResetList();
+    }
+  
+    function renderAdminAgendaList() {
+      const container = document.getElementById('admin-agenda-list');
+      document.getElementById('admin-agenda-total').innerText = agendas.length;
+  
+      if (agendas.length === 0) {
+        container.innerHTML = `<p style="font-size:13px; color:var(--text-sub); padding:10px 0;">현재 게시 중인 안건이 없습니다.</p>`;
+        return;
+      }
+  
+      container.innerHTML = agendas.map(ag => `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#F8FAFC; border:1px solid var(--border); padding:12px 16px; border-radius:12px; margin-bottom:8px;">
+          <div>
+            <span class="status-pill status-open" style="font-size:11px; margin-bottom:4px;">${ag.status}</span>
+            <div style="font-weight:700; font-size:15px; color:#1E293B;">${ag.title}</div>
+            <div style="font-size:12px; color:var(--text-sub); margin-top:2px;">${ag.desc}</div>
+          </div>
+          <button onclick="confirmDeleteSingleAgenda(${ag.id})" class="btn btn-danger" style="font-size:12px; padding:6px 12px;">
+            <i class="fa-solid fa-trash"></i> 삭제
+          </button>
+        </div>
+      `).join('');
+    }
+  
+    function renderAdminOpinionList() {
+      const tbody = document.getElementById('admin-opinions-tbody');
+      document.getElementById('admin-opinion-total').innerText = submissions.length;
+  
+      if (submissions.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:24px; color:#94A3B8;">접수된 의견이 아직 없습니다.</td></tr>`;
+        return;
+      }
+  
+      tbody.innerHTML = submissions.map((s, idx) => `
+        <tr>
+          <td><b>${s.class_name}</b></td>
+          <td>${s.author}</td>
+          <td><span class="status-pill status-open" style="font-size:11px; margin:0;">${s.category}</span></td>
+          <td style="max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${s.agenda}</td>
+          <td style="max-width:240px; font-size:13px; word-break:break-all;">${s.content}</td>
+          <td style="font-size:12px; color:#94A3B8;">${s.date}</td>
+          <td>
+            <button onclick="deleteSubmission(${idx})" class="btn btn-danger" style="padding:4px 8px; font-size:11px;">삭제</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+  
+    async function addNewAgenda() {
+      const title = document.getElementById('new-agenda-title').value.trim();
+      const status = document.getElementById('new-agenda-status').value;
+      const desc = document.getElementById('new-agenda-desc').value.trim();
+  
+      if (!title || !desc) {
+        showCustomDialog({ title: "입력 확인", message: "안건 제목과 설명을 모두 입력해주세요." });
+        return;
+      }
+  
+      if (supabaseClient) {
+        const { data, error } = await supabaseClient.from('agendas').insert([{ title: title, description: desc }]).select();
+        if (!error && data && data.length > 0) {
+          const newAg = {
+            id: data[0].id,
+            title: title,
+            desc: desc,
+            status: status,
+            date: new Date().toLocaleDateString('ko-KR')
+          };
+          agendas.unshift(newAg);
+        } else {
+          console.error("Supabase 등록 에러:", error);
+          agendas.unshift({
+            id: Date.now(),
+            title: title,
+            desc: desc,
+            status: status,
+            date: new Date().toLocaleDateString('ko-KR')
+          });
+        }
+      } else {
+        agendas.unshift({
+          id: Date.now(),
+          title: title,
+          desc: desc,
+          status: status,
+          date: new Date().toLocaleDateString('ko-KR')
+        });
+      }
+  
+      localStorage.setItem('sc_agendas_v2', JSON.stringify(agendas));
+      showToast("새로운 안건이 성공적으로 등록되었습니다!");
+      document.getElementById('new-agenda-title').value = "";
+      document.getElementById('new-agenda-desc').value = "";
+      renderAdminAgendaList();
+      renderAgendas();
+      populateAgendaSelect();
+    }
+  
+    function confirmDeleteSingleAgenda(id) {
+      showCustomDialog({
+        title: "안건 삭제",
+        message: "이 안건을 영구 삭제하시겠습니까?",
+        icon: '<i class="fa-solid fa-triangle-exclamation" style="color:#EF4444;"></i>',
+        showCancel: true,
+        onConfirm: async () => {
+          if (supabaseClient) {
+            const { error } = await supabaseClient.from('agendas').delete().eq('id', id);
+            if (error) {
+              console.error("Supabase 삭제 실패:", error);
+              showToast("클라우드 삭제 실패: " + error.message);
+              return;
+            }
+          }
+          agendas = agendas.filter(a => a.id !== id);
+          localStorage.setItem('sc_agendas_v2', JSON.stringify(agendas));
+          renderAdminAgendaList();
+          renderAgendas();
+          populateAgendaSelect();
+          showToast("안건이 삭제되었습니다.");
+        }
+      });
+    }
+  
+    function confirmDeleteAllAgendas() {
+      showCustomDialog({
+        title: "⚠️ 안건 전체 삭제",
+        message: "현재 등록된 모든 안건을 삭제하고 목록을 비우시겠습니까?",
+        icon: '<i class="fa-solid fa-trash-can" style="color:#EF4444;"></i>',
+        showCancel: true,
+        onConfirm: async () => {
+          if (supabaseClient) {
+            const { error } = await supabaseClient.from('agendas').delete().neq('id', 0);
+            if (error) {
+              console.error("Supabase 전체 삭제 실패:", error);
+              showToast("클라우드 전체 삭제 실패: " + error.message);
+              return;
+            }
+          }
+          agendas = [];
+          localStorage.setItem('sc_agendas_v2', JSON.stringify(agendas));
+          renderAdminAgendaList();
+          renderAgendas();
+          populateAgendaSelect();
+          showToast("모든 안건이 초기화(삭제)되었습니다.");
+        }
+      });
+    }
+  
+    function deleteSubmission(index) {
+      showCustomDialog({
+        title: "의견 삭제",
+        message: "이 의견을 영구 삭제하시겠습니까?",
+        showCancel: true,
+        onConfirm: () => {
+          submissions.splice(index, 1);
+          localStorage.setItem('sc_submissions_v2', JSON.stringify(submissions));
+          renderAdminOpinionList();
+          showToast("의견이 삭제되었습니다.");
+        }
+      });
     }
   
     function showToast(msg) {
