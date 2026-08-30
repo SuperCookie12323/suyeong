@@ -465,7 +465,7 @@
     .modal-box {
       background: white;
       border-radius: 18px;
-      max-width: 520px;
+      max-width: 580px;
       width: 100%;
       max-height: 90vh;
       overflow-y: auto;
@@ -695,7 +695,7 @@
       </div>
 
       <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:20px; margin-bottom:24px;">
-        <!-- 달력 (클릭 시 일정 추가/조회 모달 연결) -->
+        <!-- 달력 -->
         <div class="calendar-container">
           <div class="cal-header">
             <h3 style="font-size:16px; font-weight:800; display:flex; align-items:center; gap:8px;">
@@ -843,7 +843,7 @@
         </div>
       </div>
 
-      <!-- 교사용 예산 설정 및 지출 내역 관리 폼 -->
+      <!-- 교사용 예산 설정 폼 -->
       <div id="teacher-budget-control-card" class="card hidden" style="background:#F0FDF4; border:1.5px solid #BBF7D0;">
         <h3 style="font-size:16px; font-weight:800; color:#166534; margin-bottom:12px;">
           <i class="fa-solid fa-coins"></i> [지도교사 전용] 자치회 예산 설정 및 지출 내역 관리
@@ -1070,7 +1070,7 @@
       </div>
     </section>
   
-    <!-- [탭 5] 지도교사 관리 대시보드 (승인 관리 및 비밀번호/구성원 확인) -->
+    <!-- [탭 5] 지도교사 관리 대시보드 -->
     <section id="tab-admin-dashboard" class="section-tab">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px;">
         <div>
@@ -1079,7 +1079,7 @@
         </div>
       </div>
 
-      <!-- ⭐️ 1. 신규 첫 로그인 승인 요청 관리 카드 -->
+      <!-- 1. 신규 첫 로그인 승인 요청 관리 카드 -->
       <div class="card" style="background:#FEF3C7; border: 1.5px solid #FCD34D;">
         <h3 style="font-size:16px; font-weight:800; color:#92400E; margin-bottom:6px; display:flex; align-items:center; gap:8px;">
           <i class="fa-solid fa-user-clock"></i> 🔔 신규 첫 로그인 승인 대기 목록
@@ -1088,7 +1088,7 @@
         <div id="admin-pending-approval-list"></div>
       </div>
 
-      <!-- ⭐️ 2. 전체 자치회 구성원 명단 & 비밀번호 관리 (입장 시간 없이 심플하게 구성) -->
+      <!-- 2. 전체 자치회 구성원 명단 & 비밀번호 관리 -->
       <div class="card" style="background:#FFFBEB; border: 1.5px solid #FDE68A;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:8px;">
           <h3 style="font-size:16px; font-weight:700; color:#92400E;">
@@ -1299,21 +1299,52 @@
     </div>
   </div>
 
-  <!-- 안건 상세 보기 모달 -->
+  <!-- ⭐️ [안건 상세 보기 및 모든 학생 의견 열람/작성 모달] -->
   <div id="agenda-modal" class="modal-backdrop hidden" onclick="handleBackdropClick(event, 'agenda-modal')">
-    <div class="modal-box">
+    <div class="modal-box" style="max-height:88vh; display:flex; flex-direction:column;">
       <button class="close-modal-btn" onclick="closeModal('agenda-modal')"><i class="fa-solid fa-xmark"></i></button>
-      <span id="modal-status" class="status-pill status-open">의견 수렴 중</span>
-      <h2 id="modal-title" style="font-size:20px; font-weight:800; margin:8px 0 14px 0;">안건 제목</h2>
       
-      <div style="background:#F8FAFC; padding:16px; border-radius:12px; font-size:14px; line-height:1.6; color:#334155; margin-bottom:20px;" id="modal-desc">
-        안건 상세 설명이 들어갑니다.
+      <!-- 상단 안건 정보 -->
+      <div style="flex-shrink:0;">
+        <span id="modal-status" class="status-pill status-open">의견 수렴 중</span>
+        <h2 id="modal-title" style="font-size:20px; font-weight:800; margin:6px 0 10px 0;">안건 제목</h2>
+        
+        <div style="background:#F8FAFC; padding:14px; border-radius:12px; font-size:14px; line-height:1.6; color:#334155; margin-bottom:16px; border:1px solid var(--border);" id="modal-desc">
+          안건 상세 설명이 들어갑니다.
+        </div>
       </div>
-  
-      <div id="modal-submit-action-btn">
-        <button onclick="goToSubmitFromModal()" class="btn btn-primary btn-block">
-          <i class="fa-solid fa-pen"></i> 이 안건에 우리 반 의견 내러 가기
-        </button>
+
+      <!-- ⭐️ 핵심: 모든 학생과 교사가 볼 수 있는 실시간 학급 의견 피드 -->
+      <div style="flex-grow:1; overflow-y:auto; padding-right:4px; margin-bottom:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <h4 style="font-size:14px; font-weight:800; color:#1E1B4B; display:flex; align-items:center; gap:6px;">
+            <i class="fa-solid fa-comments" style="color:var(--primary);"></i> 학생 및 학급 제출 의견 (<span id="modal-opinion-count">0</span>)
+          </h4>
+          <span style="font-size:11px; color:var(--text-sub);">전교생 공유</span>
+        </div>
+
+        <!-- 의견 리스트 렌더링 컨테이너 -->
+        <div id="modal-opinions-container"></div>
+      </div>
+
+      <!-- 하단: 이 안건에 바로 의견 작성하기 폼 -->
+      <div style="flex-shrink:0; border-top:1.5px solid var(--border); padding-top:14px; background:white;">
+        <form onsubmit="handleQuickOpinionSubmit(event)" style="display:flex; flex-direction:column; gap:8px;">
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+            <input type="text" id="quick-author" placeholder="작성자/직책 (예: 반장 / 김민수)" required style="padding:8px 10px; font-size:12px;">
+            <select id="quick-category" style="padding:8px 10px; font-size:12px;">
+              <option value="학급회의록">📋 학급 회의 결과</option>
+              <option value="개인의견">💡 개인 제안</option>
+              <option value="찬반투표">🗳️ 찬/반 투표</option>
+            </select>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="quick-content" placeholder="이 안건에 대한 우리 반의 생각을 남겨주세요..." required style="flex-grow:1; font-size:13px; padding:10px 12px;">
+            <button type="submit" class="btn btn-primary" style="padding:10px 16px; font-size:13px; white-space:nowrap;">
+              <i class="fa-solid fa-paper-plane"></i> 등록
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -1362,11 +1393,7 @@
     let currentCalDate = new Date();
     let pendingStudentName = null;
 
-    // ⭐️ 승인 시스템: { "학생이름": { pw: "5678", approved: true } }
-    // 승인 대기 중인 학생: { "학생이름": { pw: null, approved: false } }
     let studentAccounts = JSON.parse(localStorage.getItem('sc_student_accounts_v1')) || {};
-
-    // 구버전 비밀번호 데이터 자동 마이그레이션 (호환성 유지)
     const oldPws = JSON.parse(localStorage.getItem('sc_student_pws_v1')) || {};
     Object.keys(oldPws).forEach(name => {
       if (!studentAccounts[name]) {
@@ -1495,6 +1522,7 @@
             if (row.key === 'total_budget' && row.value) totalBudget = Number(row.value);
             if (row.key === 'item_requests' && row.value) itemRequests = row.value;
             if (row.key === 'student_accounts' && row.value) studentAccounts = row.value;
+            if (row.key === 'submissions' && row.value) submissions = row.value;
           });
 
           localStorage.setItem('sc_home_data_v2', JSON.stringify(homeData));
@@ -1502,6 +1530,7 @@
           localStorage.setItem('sc_total_budget', totalBudget.toString());
           localStorage.setItem('sc_item_requests_v2', JSON.stringify(itemRequests));
           localStorage.setItem('sc_student_accounts_v1', JSON.stringify(studentAccounts));
+          localStorage.setItem('sc_submissions_v2', JSON.stringify(submissions));
 
           renderHomeView();
           renderBudgetView();
@@ -1727,7 +1756,7 @@
     }
 
     // ==========================================
-    // ⭐️ 교사용 관리 대시보드 (승인 관리 & 구성원 명단)
+    // ⭐️ 교사용 관리 대시보드
     // ==========================================
     function renderAdminHomeManagement() {
       const m = homeData.meeting || {};
@@ -1774,7 +1803,6 @@
       renderAdminApprovedMemberList();
     }
 
-    // ⭐️ 1. 승인 대기 목록 렌더링
     function renderAdminPendingList() {
       const container = document.getElementById('admin-pending-approval-list');
       const pendingNames = Object.keys(studentAccounts).filter(name => !studentAccounts[name].approved);
@@ -1801,7 +1829,6 @@
       `;
     }
 
-    // ⭐️ 2. 승인 완료된 학생 구성원 명단 & 비밀번호 관리 렌더링 (입장 시간 없이 간결하게)
     function renderAdminApprovedMemberList() {
       const container = document.getElementById('admin-pw-reset-list');
       const countEl = document.getElementById('admin-approved-count');
@@ -1859,7 +1886,7 @@
         showCancel: true,
         onConfirm: async () => {
           if (studentAccounts[studentName]) {
-            studentAccounts[studentName].pw = null; // 초기화
+            studentAccounts[studentName].pw = null;
             localStorage.setItem('sc_student_accounts_v1', JSON.stringify(studentAccounts));
             await pushToCloudStore('student_accounts', studentAccounts);
             renderAdminApprovedMemberList();
@@ -2024,7 +2051,6 @@
       }
     }
   
-    // ⭐️ 학생 로그인 및 교사 승인 요청 분기 처리
     async function handleStudentLoginSubmit(e) {
       e.preventDefault();
       const inputName = document.getElementById('login-student-name-input').value.trim();
@@ -2038,7 +2064,6 @@
       await syncWithSupabase();
       const account = studentAccounts[inputName];
 
-      // 1. 처음 로그인하는 학생 (아직 등록되지 않은 경우)
       if (!account) {
         if (pw !== STUDENT_DEFAULT_PIN) {
           showCustomDialog({ 
@@ -2048,7 +2073,6 @@
           return;
         }
 
-        // 교사 승인 요청 등록
         studentAccounts[inputName] = { pw: null, approved: false };
         localStorage.setItem('sc_student_accounts_v1', JSON.stringify(studentAccounts));
         await pushToCloudStore('student_accounts', studentAccounts);
@@ -2061,7 +2085,6 @@
         return;
       }
 
-      // 2. 등록은 되었으나 아직 교사가 승인하지 않은 경우
       if (!account.approved) {
         showCustomDialog({
           title: "승인 대기 중",
@@ -2071,7 +2094,6 @@
         return;
       }
 
-      // 3. 승인은 되었으나 아직 4자리 비밀번호를 설정하지 않은 경우
       if (!account.pw) {
         if (pw !== STUDENT_DEFAULT_PIN) {
           showCustomDialog({ 
@@ -2089,7 +2111,6 @@
         return;
       }
 
-      // 4. 승인 완료 및 비밀번호 설정 완료된 학생
       if (pw !== account.pw) {
         showCustomDialog({ 
           title: "비밀번호 불일치", 
@@ -2098,7 +2119,6 @@
         return;
       }
 
-      // 로그인 성공
       currentRole = 'student';
       currentClass = inputName;
       sessionStorage.setItem('sc_logged_role', currentRole);
@@ -2310,6 +2330,8 @@
         if (ag.status === '심의 중') statusClass = 'status-review';
         if (ag.status === '반영 완료') statusClass = 'status-done';
   
+        const count = submissions.filter(s => s.agenda === ag.title).length;
+
         return `
           <div class="agenda-card" onclick="openAgendaModal(${ag.id})">
             <div>
@@ -2318,14 +2340,15 @@
               <p class="agenda-preview">${ag.desc}</p>
             </div>
             <div class="agenda-meta">
-              <span><i class="fa-regular fa-calendar"></i> ${ag.date || '최신'}</span>
-              <span style="color:var(--primary); font-weight:700;">상세보기 및 의견 남기기 →</span>
+              <span><i class="fa-solid fa-comments" style="color:var(--primary);"></i> 의견 <b>${count}</b>개</span>
+              <span style="color:var(--primary); font-weight:700;">모든 의견 보기 & 참여 →</span>
             </div>
           </div>
         `;
       }).join('');
     }
   
+    // ⭐️ 안건 모달 열기 + 해당 안건에 등록된 모든 학생 의견 피드 렌더링
     function openAgendaModal(id) {
       const agenda = agendas.find(a => a.id === id);
       if (!agenda) return;
@@ -2338,22 +2361,92 @@
       statusPill.innerText = agenda.status;
       statusPill.className = 'status-pill ' + (agenda.status === '의견 수렴 중' ? 'status-open' : (agenda.status === '심의 중' ? 'status-review' : 'status-done'));
   
-      const actionBtn = document.getElementById('modal-submit-action-btn');
-      if (currentRole === 'teacher') {
-        actionBtn.classList.add('hidden');
-      } else {
-        actionBtn.classList.remove('hidden');
-      }
-  
+      renderModalOpinions(agenda.title);
       openModal('agenda-modal');
     }
-  
-    function goToSubmitFromModal() {
-      closeModal('agenda-modal');
-      switchTab('submit');
-      if (selectedAgendaForModal) {
-        document.getElementById('form-agenda-select').value = selectedAgendaForModal.title;
+
+    // ⭐️ 안건 상세 창 내부의 학생 의견 리스트 렌더링 함수
+    function renderModalOpinions(agendaTitle) {
+      const container = document.getElementById('modal-opinions-container');
+      const countEl = document.getElementById('modal-opinion-count');
+      const matched = submissions.filter(s => s.agenda === agendaTitle);
+
+      countEl.innerText = matched.length;
+
+      if (matched.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:24px 10px; background:#F8FAFC; border-radius:12px; border:1px dashed var(--border); color:var(--text-sub); font-size:13px;">
+            <i class="fa-regular fa-comment-dots" style="font-size:24px; color:#CBD5E1; margin-bottom:6px;"></i>
+            <p>아직 등록된 학생 의견이 없습니다. 첫 번째 의견을 남겨보세요!</p>
+          </div>
+        `;
+        return;
       }
+
+      container.innerHTML = matched.map(op => {
+        let badgeColor = "#EEF2FF; color:#4F46E5;";
+        if (op.category === '찬반투표') badgeColor = "#FEF3C7; color:#B45309;";
+        if (op.category === '개인의견') badgeColor = "#ECFDF5; color:#065F46;";
+
+        return `
+          <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                <span style="font-size:11px; font-weight:800; background:${badgeColor} padding:2px 6px; border-radius:4px;">${op.category || '의견'}</span>
+                <span style="font-size:13px; font-weight:800; color:#1E293B;">${op.class_name}</span>
+                <span style="font-size:12px; color:var(--text-sub);">(${op.author})</span>
+              </div>
+              <span style="font-size:11px; color:#94A3B8;">${op.date}</span>
+            </div>
+            <p style="font-size:13px; color:#334155; line-height:1.5; white-space:pre-line;">${op.content}</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ⭐️ 안건 모달 내부에서 바로 의견 제출하기
+    async function handleQuickOpinionSubmit(e) {
+      e.preventDefault();
+      if (!selectedAgendaForModal) return;
+
+      const author = document.getElementById('quick-author').value.trim();
+      const category = document.getElementById('quick-category').value;
+      const content = document.getElementById('quick-content').value.trim();
+
+      if (!content || !author) {
+        showToast("작성자와 내용을 입력해주세요.");
+        return;
+      }
+
+      const newOp = {
+        id: Date.now(),
+        agenda: selectedAgendaForModal.title,
+        class_name: currentClass || "익명",
+        author: author,
+        category: category,
+        content: content,
+        date: new Date().toLocaleDateString('ko-KR')
+      };
+
+      submissions.unshift(newOp);
+      localStorage.setItem('sc_submissions_v2', JSON.stringify(submissions));
+      await pushToCloudStore('submissions', submissions);
+
+      if (supabaseClient) {
+        try {
+          await supabaseClient.from('opinions').insert([{
+            class_name: currentClass,
+            author: author,
+            category: category,
+            content: `[${selectedAgendaForModal.title}] ${content}`
+          }]);
+        } catch(err) { console.error(err); }
+      }
+
+      document.getElementById('quick-content').value = "";
+      renderModalOpinions(selectedAgendaForModal.title);
+      renderAgendas();
+      showToast("🎉 의견이 성공적으로 등록되어 전교생에게 공유되었습니다!");
     }
   
     function populateAgendaSelect() {
@@ -2676,6 +2769,7 @@
   
       submissions.unshift(newOpinion);
       localStorage.setItem('sc_submissions_v2', JSON.stringify(submissions));
+      await pushToCloudStore('submissions', submissions);
   
       if (supabaseClient) {
         try {
@@ -2690,9 +2784,9 @@
         }
       }
   
-      showToast("🎉 소중한 의견이 안전하게 접수되었습니다!");
+      showToast("🎉 소중한 의견이 등록되어 전교생에게 공유되었습니다!");
       document.getElementById('form-content').value = "";
-      switchTab('myinfo');
+      switchTab('agendas');
     }
   
     async function submitSuggestion() {
@@ -2722,6 +2816,7 @@
   
       submissions.unshift(newSug);
       localStorage.setItem('sc_submissions_v2', JSON.stringify(submissions));
+      await pushToCloudStore('submissions', submissions);
   
       if (supabaseClient) {
         try {
@@ -2874,10 +2969,12 @@
         title: "의견 삭제",
         message: "이 의견을 영구 삭제하시겠습니까?",
         showCancel: true,
-        onConfirm: () => {
+        onConfirm: async () => {
           submissions.splice(index, 1);
           localStorage.setItem('sc_submissions_v2', JSON.stringify(submissions));
+          await pushToCloudStore('submissions', submissions);
           renderAdminOpinionList();
+          renderAgendas();
           showToast("의견이 삭제되었습니다.");
         }
       });
