@@ -576,7 +576,7 @@
       background: #FFFFFF;
       border: 1.5px solid var(--border);
       border-radius: 14px;
-      padding: 16px;
+      padding: 18px;
       margin-bottom: 16px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.03);
     }
@@ -590,8 +590,8 @@
       background: #DCFCE7;
       color: #166534;
       border: 1.5px solid #86EFAC;
-      padding: 8px 12px;
-      border-radius: 8px;
+      padding: 10px 14px;
+      border-radius: 10px;
       font-weight: 800;
       font-size: 13px;
       cursor: pointer;
@@ -612,8 +612,8 @@
       background: #FEE2E2;
       color: #991B1B;
       border: 1.5px solid #FECACA;
-      padding: 8px 12px;
-      border-radius: 8px;
+      padding: 10px 14px;
+      border-radius: 10px;
       font-weight: 800;
       font-size: 13px;
       cursor: pointer;
@@ -780,7 +780,7 @@
           <div id="calendar-days-grid" class="cal-grid" style="margin-top:6px;"></div>
 
           <div style="margin-top:14px; padding-top:12px; border-top:1px dashed var(--border);">
-            <div style="font-size:12px; font-weight:700; color:var(--text-sub); margin-bottom:6px;">📌 이번 달 예정된 주요 행사 & 일정 (날짜를 누르면 자세히 볼 수 있습니다)</div>
+            <div style="font-size:12px; font-weight:700; color:var(--text-sub); margin-bottom:6px;">📌 이번 달 예정된 주요 행사 & 일정</div>
             <div id="cal-upcoming-list"></div>
           </div>
         </div>
@@ -833,7 +833,6 @@
             <h2 style="font-size:22px; font-weight:900; margin:6px 0 2px 0;">실시간 회의 및 제안별 찬반 투표장</h2>
             <p style="font-size:13px; opacity:0.9;">논의 안건을 선택하고, 학생들이 내놓은 구체적인 제안(안)에 대해 각각 찬반 투표를 진행합니다.</p>
           </div>
-          <!-- 안건 선택 드롭다운 -->
           <div style="background:rgba(255,255,255,0.15); padding:10px 14px; border-radius:14px; backdrop-filter:blur(6px); border:1px solid rgba(255,255,255,0.25);">
             <label style="font-size:11px; font-weight:700; opacity:0.9; display:block; margin-bottom:4px;">현재 논의할 안건 선택</label>
             <select id="live-meeting-agenda-select" onchange="changeLiveMeetingAgenda(this.value)" style="background:white; color:#1E1B4B; font-weight:800; padding:8px 12px; border-radius:8px; border:none; font-size:13px; outline:none;">
@@ -842,7 +841,6 @@
         </div>
       </div>
 
-      <!-- 선택된 안건 설명 카드 -->
       <div class="card" style="border-left: 5px solid var(--primary); margin-bottom:20px;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
           <span id="live-agenda-status-pill" class="status-pill status-open">의견 수렴 중</span>
@@ -881,7 +879,7 @@
           <h4 style="font-size:16px; font-weight:800; color:#1E1B4B; display:flex; align-items:center; gap:6px;">
             <i class="fa-solid fa-check-to-slot" style="color:var(--primary);"></i> 상정된 세부 제안(안) 및 실시간 찬반 투표 (<span id="live-proposal-count">0</span>개)
           </h4>
-          <span style="font-size:12px; color:var(--text-sub);">제안별 1인 1표 투표 진행</span>
+          <span style="font-size:12px; color:var(--text-sub);">독립 투표 엔진 가동 중</span>
         </div>
 
         <div id="live-proposals-container"></div>
@@ -1229,7 +1227,7 @@
   
     <!-- [탭 5] 지도교사 관리 대시보드 -->
     <section id="tab-admin-dashboard" class="section-tab">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:gap:10px;">
         <div>
           <h2 style="font-size:22px; font-weight:800;">📊 학생자치회 지도교사 관리 센터</h2>
           <p style="color:var(--text-sub); font-size:13px;">학생 첫 로그인 승인 관리, 비밀번호 초기화 및 구성원 명단을 확인합니다.</p>
@@ -1517,8 +1515,10 @@
     let currentCalDate = new Date();
     let pendingStudentName = null;
 
-    // ⭐️ 안건 하위 세부 제안(안) 데이터 및 회의록 저장소
-    // { "안건제목": [ { id: 1, author: "6-2 반장", title: "제안명", desc: "내용", agreeList: [], disagreeList: [] } ] }
+    // ⭐️ 독립 투표 데이터: { [proposalId]: [ { voter: "6-1 홍길동", vote_type: "agree" } ] }
+    let liveVotesData = {};
+
+    // ⭐️ 세부 제안 데이터: { "안건제목": [ { id: 1, author: "6-2 반장", title: "제안명", desc: "내용" } ] }
     let agendaProposals = JSON.parse(localStorage.getItem('sc_agenda_proposals_v1')) || {};
     let agendaMinutes = JSON.parse(localStorage.getItem('sc_agenda_minutes_v1')) || {};
 
@@ -1624,6 +1624,7 @@
       renderBudgetView();
       renderItemRequests();
       syncWithSupabase();
+      subscribeToVotes();
     });
 
     async function syncWithSupabase() {
@@ -1670,10 +1671,47 @@
           renderBudgetView();
           renderItemRequests();
           if (currentRole === 'teacher') renderAdminHomeManagement();
-          if (currentActiveTab === 'live-meeting') renderLiveMeetingTab();
         }
+
+        // ⭐️ 독립 votes 테이블 데이터 동기화
+        await fetchAllVotes();
       } catch (err) {
         console.warn("Supabase 동기화 알림 (로컬 캐시 사용):", err);
+      }
+    }
+
+    // ⭐️ votes 테이블 전체 로드
+    async function fetchAllVotes() {
+      if (!supabaseClient) return;
+      try {
+        const { data: votesRows, error } = await supabaseClient.from('votes').select('*');
+        if (!error && votesRows) {
+          liveVotesData = {};
+          votesRows.forEach(v => {
+            if (!liveVotesData[v.proposal_id]) liveVotesData[v.proposal_id] = [];
+            liveVotesData[v.proposal_id].push({ voter: v.voter, vote_type: v.vote_type });
+          });
+          if (currentActiveTab === 'live-meeting' && currentLiveAgendaTitle) {
+            renderProposalVoteCards(currentLiveAgendaTitle);
+          }
+        }
+      } catch (e) {
+        console.warn("votes 테이블 조회 오류 (테이블 생성 확인 필요):", e);
+      }
+    }
+
+    // ⭐️ Supabase Realtime 리스너: 다른 학생이 투표하면 즉시 내 화면 갱신
+    function subscribeToVotes() {
+      if (!supabaseClient) return;
+      try {
+        supabaseClient
+          .channel('public:votes')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'votes' }, () => {
+            fetchAllVotes();
+          })
+          .subscribe();
+      } catch (e) {
+        console.warn("Realtime 구독 에러:", e);
       }
     }
 
@@ -1920,7 +1958,6 @@
       renderLiveMeetingTab();
     }
 
-    // ⭐️ 실시간 회의 탭 화면 전체 렌더링
     function renderLiveMeetingTab() {
       updateLiveAgendaDropdown();
 
@@ -1942,14 +1979,11 @@
       statusPill.innerText = agenda.status;
       statusPill.className = 'status-pill ' + (agenda.status === '의견 수렴 중' ? 'status-open' : (agenda.status === '심의 중' ? 'status-review' : 'status-done'));
 
-      // 1. 해당 안건의 세부 제안(안) 목록 & 제안별 찬반 투표 카드 렌더링
       renderProposalVoteCards(agenda.title);
-
-      // 2. 공식 회의록 렌더링
       renderLiveMinutesView(agenda.title);
     }
 
-    // ⭐️ 핵심: 세부 제안(안)별 찬반 투표 카드 렌더링
+    // ⭐️ 세부 제안(안)별 찬반 투표 카드 렌더링 (독립 votes 테이블 연동)
     function renderProposalVoteCards(agendaTitle) {
       if (!agendaProposals[agendaTitle]) {
         agendaProposals[agendaTitle] = [];
@@ -1972,8 +2006,11 @@
       const currentUserIdentifier = currentRole === 'teacher' ? '교사(관리자)' : (currentClass || 'guest');
 
       container.innerHTML = pList.map(p => {
-        const agreeList = Array.isArray(p.agreeList) ? p.agreeList : [];
-        const disagreeList = Array.isArray(p.disagreeList) ? p.disagreeList : [];
+        // 독립 votes 테이블에서 해당 제안의 찬/반 목록 추출
+        const votes = liveVotesData[p.id] || [];
+        const agreeList = votes.filter(v => v.vote_type === 'agree').map(v => v.voter);
+        const disagreeList = votes.filter(v => v.vote_type === 'disagree').map(v => v.voter);
+
         const agreeCount = agreeList.length;
         const disagreeCount = disagreeList.length;
         const totalCount = agreeCount + disagreeCount;
@@ -2031,7 +2068,7 @@
             ${currentRole === 'teacher' ? `
             <div style="padding-top:8px; border-top:1px dashed #CBD5E1;">
               <button onclick="toggleProposalRoster(${p.id})" style="background:none; border:none; color:#4338CA; font-size:11px; font-weight:800; cursor:pointer; padding:2px;">
-                <i class="fa-solid fa-user-shield"></i> [지도교사] 이 제안의 투표자 명부 열람 토글
+                <i class="fa-solid fa-user-shield"></i> [지도교사] 이 제안의 투표자 실명 명부 열람 토글
               </button>
               <div id="prop-roster-box-${p.id}" class="hidden" style="margin-top:6px; background:#F8FAFC; padding:10px; border-radius:8px; font-size:12px; border:1px solid #E2E8F0;">
                 <div style="margin-bottom:4px;"><b style="color:#166534;">👍 찬성 (${agreeCount}명):</b> <span style="color:#334155;">${agreeList.length > 0 ? agreeList.join(', ') : '없음'}</span></div>
@@ -2043,7 +2080,6 @@
       }).join('');
     }
 
-    // ⭐️ 세부 제안 등록 핸들러
     async function handleCreateProposal(e) {
       e.preventDefault();
       if (!currentLiveAgendaTitle) return;
@@ -2067,8 +2103,6 @@
         author: author,
         title: title,
         desc: desc,
-        agreeList: [],
-        disagreeList: [],
         date: new Date().toLocaleDateString('ko-KR')
       };
 
@@ -2082,46 +2116,53 @@
       showToast("💡 새로운 세부 제안이 성공적으로 상정되었습니다!");
     }
 
-    // ⭐️ 제안별 찬반 투표 실행 (1인 1표 토글/변경)
+    // ⭐️ 20명이 동시에 눌러도 충돌 없는 독립 투표 핸들러
     async function handleVoteProposal(proposalId, type) {
-      if (!currentLiveAgendaTitle) return;
-      const pList = agendaProposals[currentLiveAgendaTitle];
-      if (!pList) return;
+      const voter = currentRole === 'teacher' ? '교사(관리자)' : (currentClass || 'guest');
+      
+      if (!liveVotesData[proposalId]) liveVotesData[proposalId] = [];
+      const existingVote = liveVotesData[proposalId].find(v => v.voter === voter);
 
-      const prop = pList.find(p => p.id === proposalId);
-      if (!prop) return;
+      if (supabaseClient) {
+        try {
+          if (existingVote && existingVote.vote_type === type) {
+            // 같은 버튼 다시 누름 -> 취소 (DELETE)
+            await supabaseClient.from('votes').delete().match({ proposal_id: proposalId, voter: voter });
+            liveVotesData[proposalId] = liveVotesData[proposalId].filter(v => v.voter !== voter);
+            showToast("투표가 취소되었습니다.");
+          } else {
+            // 새로 투표하거나 찬/반 변경 -> UPSERT
+            await supabaseClient.from('votes').upsert({
+              proposal_id: proposalId,
+              voter: voter,
+              vote_type: type
+            }, { onConflict: 'proposal_id, voter' });
 
-      if (!Array.isArray(prop.agreeList)) prop.agreeList = [];
-      if (!Array.isArray(prop.disagreeList)) prop.disagreeList = [];
-
-      const user = currentRole === 'teacher' ? '교사(관리자)' : (currentClass || 'guest');
-      const agreeIdx = prop.agreeList.indexOf(user);
-      const disagreeIdx = prop.disagreeList.indexOf(user);
-
-      if (type === 'agree') {
-        if (agreeIdx !== -1) {
-          prop.agreeList.splice(agreeIdx, 1);
-          showToast("찬성 투표가 취소되었습니다.");
-        } else {
-          prop.agreeList.push(user);
-          if (disagreeIdx !== -1) prop.disagreeList.splice(disagreeIdx, 1);
-          showToast(`👍 [${prop.title}] 찬성에 투표하였습니다!`);
+            if (existingVote) {
+              existingVote.vote_type = type;
+            } else {
+              liveVotesData[proposalId].push({ voter: voter, vote_type: type });
+            }
+            showToast(type === 'agree' ? "👍 찬성에 투표하였습니다!" : "👎 반대에 투표하였습니다!");
+          }
+        } catch (err) {
+          console.error("투표 전송 에러:", err);
         }
-      } else if (type === 'disagree') {
-        if (disagreeIdx !== -1) {
-          prop.disagreeList.splice(disagreeIdx, 1);
-          showToast("반대 투표가 취소되었습니다.");
+      } else {
+        // 로컬 오프라인 Fallback
+        if (existingVote && existingVote.vote_type === type) {
+          liveVotesData[proposalId] = liveVotesData[proposalId].filter(v => v.voter !== voter);
+          showToast("투표가 취소되었습니다.");
         } else {
-          prop.disagreeList.push(user);
-          if (agreeIdx !== -1) prop.agreeList.splice(agreeIdx, 1);
-          showToast(`👎 [${prop.title}] 반대에 투표하였습니다!`);
+          if (existingVote) existingVote.vote_type = type;
+          else liveVotesData[proposalId].push({ voter: voter, vote_type: type });
+          showToast(type === 'agree' ? "👍 찬성에 투표하였습니다!" : "👎 반대에 투표하였습니다!");
         }
       }
 
-      localStorage.setItem('sc_agenda_proposals_v1', JSON.stringify(agendaProposals));
-      await pushToCloudStore('agenda_proposals', agendaProposals);
-
-      renderProposalVoteCards(currentLiveAgendaTitle);
+      if (currentLiveAgendaTitle) {
+        renderProposalVoteCards(currentLiveAgendaTitle);
+      }
     }
 
     function toggleProposalRoster(propId) {
@@ -2140,6 +2181,12 @@
             agendaProposals[currentLiveAgendaTitle] = agendaProposals[currentLiveAgendaTitle].filter(p => p.id !== propId);
             localStorage.setItem('sc_agenda_proposals_v1', JSON.stringify(agendaProposals));
             await pushToCloudStore('agenda_proposals', agendaProposals);
+
+            if (supabaseClient) {
+              await supabaseClient.from('votes').delete().eq('proposal_id', propId);
+            }
+            delete liveVotesData[propId];
+
             renderProposalVoteCards(currentLiveAgendaTitle);
             showToast("제안이 삭제되었습니다.");
           }
@@ -2147,7 +2194,6 @@
       });
     }
 
-    // ⭐️ 2. 공식 회의록 뷰 렌더링
     function renderLiveMinutesView(agendaTitle) {
       const minData = agendaMinutes[agendaTitle] || {
         date: new Date().toLocaleDateString('ko-KR') + " 정기총회",
@@ -2207,7 +2253,6 @@
       showToast("📝 공식 회의록이 실시간으로 저장되었습니다!");
     }
 
-    // ⭐️ 3. 회의록 및 제안별 찬반 투표 결과 포함 한글(HWP) 다운로드
     function downloadLiveHwpMinutes() {
       if (!currentLiveAgendaTitle) return;
       const agendaTitle = currentLiveAgendaTitle;
@@ -2220,14 +2265,19 @@
       const pList = agendaProposals[agendaTitle] || [];
       const agendaObj = agendas.find(a => a.title === agendaTitle) || { desc: '-' };
 
-      let proposalsHtml = pList.length > 0 ? pList.map((p, idx) => `
-        <tr>
-          <td style="text-align:center;">제안 ${idx + 1}</td>
-          <td><b>${p.title}</b><br><span style="font-size:9pt; color:#555;">${p.desc}</span></td>
-          <td style="text-align:center;">${p.author}</td>
-          <td style="text-align:center;">찬성 ${p.agreeList.length}표 / 반대 ${p.disagreeList.length}표</td>
-        </tr>
-      `).join('') : `<tr><td colspan="4" style="text-align:center; padding:10px;">상정된 세부 제안이 없습니다.</td></tr>`;
+      let proposalsHtml = pList.length > 0 ? pList.map((p, idx) => {
+        const votes = liveVotesData[p.id] || [];
+        const agreeCount = votes.filter(v => v.vote_type === 'agree').length;
+        const disagreeCount = votes.filter(v => v.vote_type === 'disagree').length;
+        return `
+          <tr>
+            <td style="text-align:center;">제안 ${idx + 1}</td>
+            <td><b>${p.title}</b><br><span style="font-size:9pt; color:#555;">${p.desc}</span></td>
+            <td style="text-align:center;">${p.author}</td>
+            <td style="text-align:center;">찬성 ${agreeCount}표 / 반대 ${disagreeCount}표</td>
+          </tr>
+        `;
+      }).join('') : `<tr><td colspan="4" style="text-align:center; padding:10px;">상정된 세부 제안이 없습니다.</td></tr>`;
 
       const htmlContent = `
         <!DOCTYPE html>
@@ -2857,7 +2907,6 @@
       if (tabName === 'admin-opinions') renderAdminOpinionList();
     }
   
-    // ⭐️ 안건 게시판 목록 렌더링
     function renderAgendas() {
       const container = document.getElementById('agenda-grid-container');
       const countDisplay = document.getElementById('agenda-count');
@@ -3374,9 +3423,6 @@
               ${item.class_name} • ${item.author} (${item.category})
             </div>
             <p style="font-size:13px; color:#475569; line-height:1.5; white-space:pre-line;">${item.content}</p>
-            <div style="display:flex; justify-content:flex-end; margin-top:6px;">
-              <span style="font-size:12px; color:#E11D48; font-weight:700;"><i class="fa-solid fa-heart"></i> ${(item.likedBy || []).length}</span>
-            </div>
           </div>
         </div>
       `).join('');
@@ -3396,7 +3442,7 @@
         tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:24px; color:#94A3B8;">접수된 의견이 아직 없습니다.</td></tr>`;
         return;
       }
-  
+
       tbody.innerHTML = submissions.map((s) => `
         <tr>
           <td><b>${s.class_name}</b></td>
