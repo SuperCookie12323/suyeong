@@ -574,20 +574,28 @@
     .like-btn {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      background: #FEE2E2;
-      color: #E11D48;
-      border: 1px solid #FECDD3;
-      padding: 3px 8px;
+      gap: 5px;
+      background: #F1F5F9;
+      color: #64748B;
+      border: 1px solid #E2E8F0;
+      padding: 4px 10px;
       border-radius: 20px;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.15s ease;
     }
     .like-btn:hover {
-      background: #FDA4AF;
-      transform: scale(1.05);
+      background: #FEE2E2;
+      color: #E11D48;
+      border-color: #FECDD3;
+      transform: scale(1.04);
+    }
+    .like-btn.liked {
+      background: #FEE2E2;
+      color: #E11D48;
+      border-color: #FDA4AF;
+      box-shadow: 0 2px 6px rgba(225, 29, 72, 0.15);
     }
     
     .hidden { display: none !important; }
@@ -1123,6 +1131,7 @@
         </h3>
         <p style="font-size:13px; color:#0284C7; margin-bottom:16px;">첫 화면에서 보는 다음 회의 공지, 학급 과제 및 부서 역할을 설정합니다.</p>
 
+        <!-- 다음 회의 안내 설정 -->
         <div style="background:white; padding:16px; border-radius:12px; border:1px solid #E0F2FE; margin-bottom:16px;">
           <h4 style="font-size:14px; font-weight:700; color:#0369A1; margin-bottom:10px;"><i class="fa-solid fa-bullhorn"></i> 1. 다음 회의 안내 배너 설정</h4>
           <div style="display:grid; grid-template-columns:2fr 1fr; gap:10px; margin-bottom:8px;">
@@ -1139,6 +1148,7 @@
           </button>
         </div>
 
+        <!-- 반 별 해야 할 일(과제) 등록/관리 -->
         <div style="background:white; padding:16px; border-radius:12px; border:1px solid #E0F2FE; margin-bottom:16px;">
           <h4 style="font-size:14px; font-weight:700; color:#0369A1; margin-bottom:10px;"><i class="fa-solid fa-tasks"></i> 2. 반 별 해야 할 일(학급 과제) 등록</h4>
           <div style="display:grid; grid-template-columns:1fr 2fr 1fr auto; gap:10px; align-items:center;">
@@ -1152,6 +1162,7 @@
           <div id="admin-task-list" style="margin-top:12px;"></div>
         </div>
 
+        <!-- 이번 달 역할 가이드 등록/관리 -->
         <div style="background:white; padding:16px; border-radius:12px; border:1px solid #E0F2FE; margin-bottom:16px;">
           <h4 style="font-size:14px; font-weight:700; color:#0369A1; margin-bottom:10px;"><i class="fa-solid fa-user-gear"></i> 3. 이번 달 역할 & 부서별 실천 과제 추가</h4>
           <div style="display:grid; grid-template-columns:1fr 3fr auto; gap:10px; align-items:center;">
@@ -1164,6 +1175,7 @@
           <div id="admin-role-list" style="margin-top:12px;"></div>
         </div>
 
+        <!-- 자치회 부서 및 부원 명단 등록/관리 -->
         <div style="background:white; padding:16px; border-radius:12px; border:1px solid #E0F2FE;">
           <h4 style="font-size:14px; font-weight:700; color:#0369A1; margin-bottom:10px;"><i class="fa-solid fa-users-line"></i> 4. 자치회 부서 및 부원 명단 등록</h4>
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:8px;">
@@ -2317,7 +2329,6 @@
       if (tabName === 'admin-opinions') renderAdminOpinionList();
     }
   
-    // ⭐️ 안건 렌더링 (교사 로그인 시 개별 삭제 버튼 노출)
     function renderAgendas() {
       const container = document.getElementById('agenda-grid-container');
       const countDisplay = document.getElementById('agenda-count');
@@ -2363,7 +2374,6 @@
       }).join('');
     }
 
-    // ⭐️ 1. 안건 개별 삭제 함수
     function deleteSingleAgenda(id, title) {
       showCustomDialog({
         title: "안건 삭제",
@@ -2375,7 +2385,7 @@
             await supabaseClient.from('agendas').delete().eq('id', id);
           }
           agendas = agendas.filter(a => a.id !== id);
-          submissions = submissions.filter(s => s.agenda !== title); // 관련 의견도 함께 삭제
+          submissions = submissions.filter(s => s.agenda !== title);
 
           localStorage.setItem('sc_agendas_v2', JSON.stringify(agendas));
           localStorage.setItem('sc_submissions_v2', JSON.stringify(submissions));
@@ -2404,7 +2414,7 @@
       openModal('agenda-modal');
     }
 
-    // ⭐️ 2 & 3. 안건 상세 창 내부의 학생 의견 렌더링 (개별 삭제 & 좋아요 버튼 포함)
+    // ⭐️ 안건 상세 창 내부의 학생 의견 렌더링 (1인 1회 토글 좋아요 지원)
     function renderModalOpinions(agendaTitle) {
       const container = document.getElementById('modal-opinions-container');
       const countEl = document.getElementById('modal-opinion-count');
@@ -2422,12 +2432,16 @@
         return;
       }
 
+      const currentUserIdentifier = currentRole === 'teacher' ? 'teacher' : (currentClass || 'guest');
+
       container.innerHTML = matched.map(op => {
         let badgeColor = "#EEF2FF; color:#4F46E5;";
         if (op.category === '찬반투표') badgeColor = "#FEF3C7; color:#B45309;";
         if (op.category === '개인의견') badgeColor = "#ECFDF5; color:#065F46;";
 
-        const likes = op.likes || 0;
+        const likedBy = Array.isArray(op.likedBy) ? op.likedBy : [];
+        const isLiked = likedBy.includes(currentUserIdentifier);
+        const likeCount = likedBy.length;
         const canDelete = (currentRole === 'teacher') || (op.class_name === currentClass);
 
         return `
@@ -2448,10 +2462,10 @@
             </div>
             <p style="font-size:13px; color:#334155; line-height:1.5; white-space:pre-line; margin-bottom:8px;">${op.content}</p>
             
-            <!-- 좋아요 버튼 -->
+            <!-- 좋아요 버튼 (토글 상태 반영) -->
             <div style="display:flex; justify-content:flex-end;">
-              <button onclick="toggleLikeOpinion(${op.id})" class="like-btn">
-                <i class="fa-solid fa-heart"></i> 좋아요 <span>${likes}</span>
+              <button onclick="toggleLikeOpinion(${op.id})" class="like-btn ${isLiked ? 'liked' : ''}">
+                <i class="fa-solid fa-heart" style="${isLiked ? 'color:#E11D48;' : ''}"></i> 좋아요 <span>${likeCount}</span>
               </button>
             </div>
           </div>
@@ -2459,7 +2473,6 @@
       }).join('');
     }
 
-    // ⭐️ 2. 댓글(의견) 개별 삭제 함수
     function deleteSingleOpinion(opinionId) {
       showCustomDialog({
         title: "의견 삭제",
@@ -2480,12 +2493,30 @@
       });
     }
 
-    // ⭐️ 3. 의견 좋아요(공감) 증가 함수
+    // ⭐️ 1인 1회 토글 좋아요 함수 (1번 누르면 +1, 다시 누르면 취소 -1)
     async function toggleLikeOpinion(opinionId) {
       const target = submissions.find(s => s.id === opinionId);
       if (!target) return;
 
-      target.likes = (target.likes || 0) + 1;
+      if (!Array.isArray(target.likedBy)) {
+        target.likedBy = [];
+      }
+
+      const currentUserIdentifier = currentRole === 'teacher' ? 'teacher' : (currentClass || 'guest');
+      const index = target.likedBy.indexOf(currentUserIdentifier);
+
+      if (index === -1) {
+        // 처음 누름 -> 좋아요 추가
+        target.likedBy.push(currentUserIdentifier);
+        showToast("❤️ 좋아요를 눌렀습니다!");
+      } else {
+        // 이미 누른 상태에서 다시 누름 -> 좋아요 취소
+        target.likedBy.splice(index, 1);
+        showToast("🤍 좋아요가 취소되었습니다.");
+      }
+
+      target.likes = target.likedBy.length;
+
       localStorage.setItem('sc_submissions_v2', JSON.stringify(submissions));
       await pushToCloudStore('submissions', submissions);
 
@@ -2493,7 +2524,6 @@
         renderModalOpinions(selectedAgendaForModal.title);
       }
       renderAdminOpinionList();
-      showToast("❤️ 의견에 좋아요를 눌렀습니다!");
     }
 
     async function handleQuickOpinionSubmit(e) {
@@ -2517,6 +2547,7 @@
         category: category,
         content: content,
         likes: 0,
+        likedBy: [],
         date: new Date().toLocaleDateString('ko-KR')
       };
 
@@ -2857,6 +2888,7 @@
         category: category,
         content: content,
         likes: 0,
+        likedBy: [],
         date: new Date().toLocaleDateString('ko-KR')
       };
   
@@ -2905,6 +2937,7 @@
         category: "소리함 건의",
         content: content,
         likes: 0,
+        likedBy: [],
         date: new Date().toLocaleDateString('ko-KR')
       };
   
@@ -2943,7 +2976,7 @@
         `;
         return;
       }
-  
+
       container.innerHTML = filtered.map(item => `
         <div class="timeline-item">
           <div style="font-size:22px; color:var(--primary);"><i class="fa-solid fa-comment-dots"></i></div>
@@ -2957,7 +2990,7 @@
             </div>
             <p style="font-size:13px; color:#475569; line-height:1.5; white-space:pre-line;">${item.content}</p>
             <div style="display:flex; justify-content:flex-end; margin-top:6px;">
-              <span style="font-size:12px; color:#E11D48; font-weight:700;"><i class="fa-solid fa-heart"></i> ${item.likes || 0}</span>
+              <span style="font-size:12px; color:#E11D48; font-weight:700;"><i class="fa-solid fa-heart"></i> ${(item.likedBy || []).length}</span>
             </div>
           </div>
         </div>
@@ -2986,7 +3019,7 @@
           <td><span class="status-pill status-open" style="font-size:11px; margin:0;">${s.category}</span></td>
           <td style="max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${s.agenda}</td>
           <td style="max-width:240px; font-size:13px; word-break:break-all;">${s.content}</td>
-          <td style="font-size:12px; color:#E11D48; font-weight:700;"><i class="fa-solid fa-heart"></i> ${s.likes || 0}</td>
+          <td style="font-size:12px; color:#E11D48; font-weight:700;"><i class="fa-solid fa-heart"></i> ${(s.likedBy || []).length}</td>
           <td style="font-size:12px; color:#94A3B8;">${s.date}</td>
           <td>
             <button onclick="deleteSingleOpinion(${s.id})" class="btn btn-danger" style="padding:4px 8px; font-size:11px;">삭제</button>
