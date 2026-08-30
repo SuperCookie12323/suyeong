@@ -619,7 +619,7 @@
   </header>
   
   <main>
-    <!-- [0] 🔒 로그인 화면 (새로고침 시 세션이 있으면 자동으로 홈 탭으로 전환) -->
+    <!-- [0] 🔒 로그인 화면 -->
     <section id="tab-login-gate" class="section-tab active">
       <div class="card" style="max-width: 480px; margin: 40px auto; padding: 32px 28px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08);">
         <div style="text-align: center; margin-bottom: 24px;">
@@ -764,7 +764,7 @@
       </div>
     </section>
   
-    <!-- [탭 1] 자치회 안건 확인하기 (교사만 등록 폼 노출) -->
+    <!-- [탭 1] 자치회 안건 확인하기 -->
     <section id="tab-agendas" class="section-tab">
       <div class="hero-banner">
         <div>
@@ -773,7 +773,7 @@
         </div>
       </div>
 
-      <!-- 교사용 안건 등록 폼 (학생에게는 완전 숨김) -->
+      <!-- 교사용 안건 등록 폼 -->
       <div id="teacher-agenda-create-card" class="card hidden" style="background:#FAF5FF; border: 1.5px solid #E9D5FF; margin-bottom: 24px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
           <h3 style="font-size:16px; font-weight:800; color:#6B21A8;">
@@ -806,7 +806,7 @@
       <div class="grid-2" id="agenda-grid-container"></div>
     </section>
 
-    <!-- [탭 1.5] 자치회 예산 (교사만 조절/지출 폼 노출) -->
+    <!-- [탭 1.5] 자치회 예산 -->
     <section id="tab-budget" class="section-tab">
       <div class="card" style="background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); color: white; border: none; padding: 26px;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
@@ -843,7 +843,7 @@
         </div>
       </div>
 
-      <!-- 교사용 예산 설정 및 지출 내역 관리 폼 (학생에게는 완전 숨김) -->
+      <!-- 교사용 예산 설정 및 지출 내역 관리 폼 -->
       <div id="teacher-budget-control-card" class="card hidden" style="background:#F0FDF4; border:1.5px solid #BBF7D0;">
         <h3 style="font-size:16px; font-weight:800; color:#166534; margin-bottom:12px;">
           <i class="fa-solid fa-coins"></i> [지도교사 전용] 자치회 예산 설정 및 지출 내역 관리
@@ -1070,30 +1070,42 @@
       </div>
     </section>
   
-    <!-- [탭 5] 지도교사 관리 대시보드 (2가지 핵심 항목만 배치) -->
+    <!-- [탭 5] 지도교사 관리 대시보드 (승인 관리 및 비밀번호/구성원 확인) -->
     <section id="tab-admin-dashboard" class="section-tab">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px;">
         <div>
           <h2 style="font-size:22px; font-weight:800;">📊 학생자치회 지도교사 관리 센터</h2>
-          <p style="color:var(--text-sub); font-size:13px;">학생 비밀번호 초기화 및 홈 화면 안내·부서 역할을 관리합니다.</p>
+          <p style="color:var(--text-sub); font-size:13px;">학생 첫 로그인 승인 관리, 비밀번호 초기화 및 구성원 명단을 확인합니다.</p>
         </div>
       </div>
 
-      <!-- 1) 학생 비밀번호 초기화 관리 -->
-      <div class="card" style="background:#FFFBEB; border: 1.5px solid #FDE68A;">
-        <h3 style="font-size:16px; font-weight:700; color:#92400E; margin-bottom:8px;">
-          <i class="fa-solid fa-key"></i> 학생 비밀번호 초기화 관리
+      <!-- ⭐️ 1. 신규 첫 로그인 승인 요청 관리 카드 -->
+      <div class="card" style="background:#FEF3C7; border: 1.5px solid #FCD34D;">
+        <h3 style="font-size:16px; font-weight:800; color:#92400E; margin-bottom:6px; display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-user-clock"></i> 🔔 신규 첫 로그인 승인 대기 목록
         </h3>
-        <p style="font-size:13px; color:#B45309; margin-bottom:12px;">비밀번호를 분실한 학생이 있을 경우 비밀번호를 초기값(1234)으로 재설정할 수 있습니다.</p>
+        <p style="font-size:13px; color:#B45309; margin-bottom:12px;">처음으로 접속을 시도한 학생입니다. 선생님이 [승인] 버튼을 눌러야 학생이 4자리 비밀번호를 설정할 수 있습니다.</p>
+        <div id="admin-pending-approval-list"></div>
+      </div>
+
+      <!-- ⭐️ 2. 전체 자치회 구성원 명단 & 비밀번호 관리 (입장 시간 없이 심플하게 구성) -->
+      <div class="card" style="background:#FFFBEB; border: 1.5px solid #FDE68A;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:8px;">
+          <h3 style="font-size:16px; font-weight:700; color:#92400E;">
+            <i class="fa-solid fa-users"></i> 등록된 자치회 학생 구성원 명단 & 비밀번호 관리
+          </h3>
+          <span style="font-size:12px; font-weight:700; color:#B45309;">총 <b id="admin-approved-count">0</b>명 승인됨</span>
+        </div>
+        <p style="font-size:13px; color:#B45309; margin-bottom:12px;">현재 승인 완료되어 활동 중인 학생 명단입니다. 비밀번호 분실 시 1234로 초기화할 수 있습니다.</p>
         <div id="admin-pw-reset-list"></div>
       </div>
 
-      <!-- 2) 홈 화면 안내 및 역할 관리 -->
+      <!-- 3. 홈 화면 안내 및 역할 관리 -->
       <div class="card" style="background:#F0F9FF; border: 1.5px solid #BAE6FD;">
         <h3 style="font-size:17px; font-weight:800; color:#0369A1; margin-bottom:4px;">
           <i class="fa-solid fa-sliders"></i> 🏠 홈 화면 안내 및 역할 관리
         </h3>
-        <p style="font-size:13px; color:#0284C7; margin-bottom:16px;">첫 화면에서 보는 다음 회의 공지, 학급 과제 및 부서 역할을 설정합니다. (달력 일정은 홈 화면 달력에서 직접 클릭하여 추가할 수 있습니다)</p>
+        <p style="font-size:13px; color:#0284C7; margin-bottom:16px;">첫 화면에서 보는 다음 회의 공지, 학급 과제 및 부서 역할을 설정합니다.</p>
 
         <!-- 다음 회의 안내 설정 -->
         <div style="background:white; padding:16px; border-radius:12px; border:1px solid #E0F2FE; margin-bottom:16px;">
@@ -1225,7 +1237,7 @@
     </section>
   </main>
   
-  <!-- ⭐️ 달력 날짜 클릭 시 열리는 [일정 조회 및 교사 추가 모달] -->
+  <!-- 달력 날짜 클릭 시 열리는 모달 -->
   <div id="calendar-event-modal" class="modal-backdrop hidden" onclick="handleBackdropClick(event, 'calendar-event-modal')">
     <div class="modal-box" style="max-width: 480px;">
       <button class="close-modal-btn" onclick="closeModal('calendar-event-modal')"><i class="fa-solid fa-xmark"></i></button>
@@ -1236,7 +1248,7 @@
 
       <div id="cal-modal-event-list" style="margin-bottom:16px;"></div>
 
-      <!-- 교사용 일정 추가 폼 (교사 로그인 시만 노출) -->
+      <!-- 교사용 일정 추가 폼 -->
       <div id="cal-modal-teacher-form" class="hidden" style="background:#F8FAFC; border:1px solid var(--border); border-radius:12px; padding:14px; margin-top:14px;">
         <h4 style="font-size:13px; font-weight:700; color:var(--primary); margin-bottom:8px;">
           <i class="fa-solid fa-plus"></i> 이 날짜에 새 자치회 일정 추가
@@ -1267,7 +1279,7 @@
         </div>
         <h3 style="font-size:18px; font-weight:800; color:#1E1B4B;">새 비밀번호 4자리 설정</h3>
         <p style="font-size:13px; color:var(--text-sub); margin-top:4px;">
-          안전한 활동을 위해 <b id="pw-modal-user-name" style="color:var(--primary);"></b> 학생만의 <b>숫자 4자리 비밀번호</b>를 설정해주세요.
+          선생님 승인이 완료되었습니다! <b id="pw-modal-user-name" style="color:var(--primary);"></b> 학생만의 <b>숫자 4자리 비밀번호</b>를 설정해주세요.
         </p>
       </div>
 
@@ -1341,7 +1353,6 @@
       }
     }
   
-    // ⭐️ 새로고침 시에도 로그인과 현재 탭이 유지되도록 sessionStorage 활용
     let currentRole = sessionStorage.getItem('sc_logged_role') || null;
     let currentClass = sessionStorage.getItem('sc_logged_class') || null;
     let currentActiveTab = sessionStorage.getItem('sc_active_tab') || 'home';
@@ -1351,7 +1362,18 @@
     let currentCalDate = new Date();
     let pendingStudentName = null;
 
-    let studentPasswords = JSON.parse(localStorage.getItem('sc_student_pws_v1')) || {};
+    // ⭐️ 승인 시스템: { "학생이름": { pw: "5678", approved: true } }
+    // 승인 대기 중인 학생: { "학생이름": { pw: null, approved: false } }
+    let studentAccounts = JSON.parse(localStorage.getItem('sc_student_accounts_v1')) || {};
+
+    // 구버전 비밀번호 데이터 자동 마이그레이션 (호환성 유지)
+    const oldPws = JSON.parse(localStorage.getItem('sc_student_pws_v1')) || {};
+    Object.keys(oldPws).forEach(name => {
+      if (!studentAccounts[name]) {
+        studentAccounts[name] = { pw: oldPws[name], approved: true };
+      }
+    });
+
     let agendas = JSON.parse(localStorage.getItem('sc_agendas_v2')) || [];
     let submissions = JSON.parse(localStorage.getItem('sc_submissions_v2')) || [];
     let totalBudget = parseInt(localStorage.getItem('sc_total_budget') || "1000000", 10);
@@ -1472,14 +1494,14 @@
             if (row.key === 'expenses' && row.value) expenses = row.value;
             if (row.key === 'total_budget' && row.value) totalBudget = Number(row.value);
             if (row.key === 'item_requests' && row.value) itemRequests = row.value;
-            if (row.key === 'student_passwords' && row.value) studentPasswords = row.value;
+            if (row.key === 'student_accounts' && row.value) studentAccounts = row.value;
           });
 
           localStorage.setItem('sc_home_data_v2', JSON.stringify(homeData));
           localStorage.setItem('sc_expenses_v2', JSON.stringify(expenses));
           localStorage.setItem('sc_total_budget', totalBudget.toString());
           localStorage.setItem('sc_item_requests_v2', JSON.stringify(itemRequests));
-          localStorage.setItem('sc_student_pws_v1', JSON.stringify(studentPasswords));
+          localStorage.setItem('sc_student_accounts_v1', JSON.stringify(studentAccounts));
 
           renderHomeView();
           renderBudgetView();
@@ -1645,7 +1667,6 @@
       }
     }
 
-    // ⭐️ 3. 달력 날짜 클릭 시 일정 모달 열기 (교사에게는 일정 추가 폼 제공)
     function openDateEventsModal(dateStr) {
       document.getElementById('cal-modal-date-title').innerText = `📅 ${dateStr} 자치회 일정`;
       document.getElementById('cal-modal-selected-date').value = dateStr;
@@ -1706,7 +1727,7 @@
     }
 
     // ==========================================
-    // ⭐️ 교사용 대시보드 관리
+    // ⭐️ 교사용 관리 대시보드 (승인 관리 & 구성원 명단)
     // ==========================================
     function renderAdminHomeManagement() {
       const m = homeData.meeting || {};
@@ -1749,21 +1770,55 @@
         </div>
       `).join('');
 
-      renderAdminPwResetList();
+      renderAdminPendingList();
+      renderAdminApprovedMemberList();
     }
 
-    function renderAdminPwResetList() {
-      const container = document.getElementById('admin-pw-reset-list');
-      const keys = Object.keys(studentPasswords);
-      if (keys.length === 0) {
-        container.innerHTML = `<p style="font-size:12px; color:#92400E;">아직 개별 비밀번호를 설정한 학생이 없습니다. (모두 1234로 접속 가능)</p>`;
+    // ⭐️ 1. 승인 대기 목록 렌더링
+    function renderAdminPendingList() {
+      const container = document.getElementById('admin-pending-approval-list');
+      const pendingNames = Object.keys(studentAccounts).filter(name => !studentAccounts[name].approved);
+
+      if (pendingNames.length === 0) {
+        container.innerHTML = `<p style="font-size:12px; color:#92400E;">현재 대기 중인 승인 요청이 없습니다.</p>`;
         return;
       }
+
       container.innerHTML = `
         <div style="display:flex; flex-wrap:wrap; gap:8px;">
-          ${keys.map(name => `
+          ${pendingNames.map(name => `
+            <div style="background:white; border:1.5px solid #F59E0B; padding:8px 14px; border-radius:10px; display:inline-flex; align-items:center; gap:10px; font-size:13px; box-shadow:0 2px 6px rgba(245,158,11,0.15);">
+              <span><b>${name}</b></span>
+              <button onclick="approveStudentLogin('${name}')" class="btn btn-primary" style="padding:4px 10px; font-size:11px; background:#10B981;">
+                <i class="fa-solid fa-check"></i> 승인
+              </button>
+              <button onclick="rejectStudentLogin('${name}')" class="btn btn-danger" style="padding:4px 8px; font-size:11px;">
+                거절
+              </button>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    // ⭐️ 2. 승인 완료된 학생 구성원 명단 & 비밀번호 관리 렌더링 (입장 시간 없이 간결하게)
+    function renderAdminApprovedMemberList() {
+      const container = document.getElementById('admin-pw-reset-list');
+      const countEl = document.getElementById('admin-approved-count');
+      const approvedNames = Object.keys(studentAccounts).filter(name => studentAccounts[name].approved);
+      
+      if (countEl) countEl.innerText = approvedNames.length;
+
+      if (approvedNames.length === 0) {
+        container.innerHTML = `<p style="font-size:12px; color:#92400E;">아직 승인 완료된 학생 구성원이 없습니다.</p>`;
+        return;
+      }
+
+      container.innerHTML = `
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          ${approvedNames.map(name => `
             <div style="background:white; border:1px solid #FDE68A; padding:6px 12px; border-radius:8px; display:inline-flex; align-items:center; gap:8px; font-size:12px;">
-              <span><b>${name}</b> (설정됨)</span>
+              <span><i class="fa-solid fa-user-check" style="color:#10B981;"></i> <b>${name}</b></span>
               <button onclick="resetStudentPassword('${name}')" class="btn btn-secondary" style="padding:2px 6px; font-size:11px; color:#B45309; background:#FEF3C7;">1234로 초기화</button>
             </div>
           `).join('')}
@@ -1771,17 +1826,45 @@
       `;
     }
 
+    async function approveStudentLogin(studentName) {
+      if (studentAccounts[studentName]) {
+        studentAccounts[studentName].approved = true;
+        localStorage.setItem('sc_student_accounts_v1', JSON.stringify(studentAccounts));
+        await pushToCloudStore('student_accounts', studentAccounts);
+        renderAdminPendingList();
+        renderAdminApprovedMemberList();
+        showToast(`[${studentName}] 학생의 첫 로그인이 승인되었습니다!`);
+      }
+    }
+
+    async function rejectStudentLogin(studentName) {
+      showCustomDialog({
+        title: "승인 거절",
+        message: `[${studentName}] 학생의 접속 요청을 거절하고 삭제하시겠습니까?`,
+        showCancel: true,
+        onConfirm: async () => {
+          delete studentAccounts[studentName];
+          localStorage.setItem('sc_student_accounts_v1', JSON.stringify(studentAccounts));
+          await pushToCloudStore('student_accounts', studentAccounts);
+          renderAdminPendingList();
+          showToast(`[${studentName}] 학생의 요청이 거절되었습니다.`);
+        }
+      });
+    }
+
     async function resetStudentPassword(studentName) {
       showCustomDialog({
         title: "비밀번호 초기화",
-        message: `[${studentName}] 학생의 비밀번호를 기본 번호인 '1234'로 초기화하시겠습니까?`,
+        message: `[${studentName}] 학생의 비밀번호를 기본 번호인 '1234'로 초기화하시겠습니까?\n(초기화 후 학생은 1234로 다시 4자리 설정할 수 있습니다.)`,
         showCancel: true,
         onConfirm: async () => {
-          delete studentPasswords[studentName];
-          localStorage.setItem('sc_student_pws_v1', JSON.stringify(studentPasswords));
-          await pushToCloudStore('student_passwords', studentPasswords);
-          renderAdminPwResetList();
-          showToast(`[${studentName}] 학생 비밀번호가 1234로 초기화되었습니다.`);
+          if (studentAccounts[studentName]) {
+            studentAccounts[studentName].pw = null; // 초기화
+            localStorage.setItem('sc_student_accounts_v1', JSON.stringify(studentAccounts));
+            await pushToCloudStore('student_accounts', studentAccounts);
+            renderAdminApprovedMemberList();
+            showToast(`[${studentName}] 학생 비밀번호가 1234로 초기화되었습니다.`);
+          }
         }
       });
     }
@@ -1941,7 +2024,8 @@
       }
     }
   
-    function handleStudentLoginSubmit(e) {
+    // ⭐️ 학생 로그인 및 교사 승인 요청 분기 처리
+    async function handleStudentLoginSubmit(e) {
       e.preventDefault();
       const inputName = document.getElementById('login-student-name-input').value.trim();
       const pw = document.getElementById('login-student-pw').value.trim();
@@ -1951,13 +2035,48 @@
         return;
       }
 
-      const userCustomPw = studentPasswords[inputName];
+      await syncWithSupabase();
+      const account = studentAccounts[inputName];
 
-      if (!userCustomPw) {
+      // 1. 처음 로그인하는 학생 (아직 등록되지 않은 경우)
+      if (!account) {
         if (pw !== STUDENT_DEFAULT_PIN) {
           showCustomDialog({ 
             title: "비밀번호 오류", 
             message: `처음 로그인하는 학생입니다.\n초기 비밀번호는 [${STUDENT_DEFAULT_PIN}] 입니다.` 
+          });
+          return;
+        }
+
+        // 교사 승인 요청 등록
+        studentAccounts[inputName] = { pw: null, approved: false };
+        localStorage.setItem('sc_student_accounts_v1', JSON.stringify(studentAccounts));
+        await pushToCloudStore('student_accounts', studentAccounts);
+
+        showCustomDialog({
+          title: "교사 승인 대기 중",
+          message: `[${inputName}] 학생의 첫 로그인 승인 요청이 지도교사 선생님께 전송되었습니다.\n\n선생님께서 승인해주신 뒤 다시 로그인하시면 비밀번호 4자리를 설정할 수 있습니다.`,
+          icon: '<i class="fa-solid fa-hourglass-half" style="color:#F59E0B;"></i>'
+        });
+        return;
+      }
+
+      // 2. 등록은 되었으나 아직 교사가 승인하지 않은 경우
+      if (!account.approved) {
+        showCustomDialog({
+          title: "승인 대기 중",
+          message: `[${inputName}] 학생은 아직 지도교사 선생님의 승인을 기다리는 중입니다.\n선생님께 승인을 요청해주세요.`,
+          icon: '<i class="fa-solid fa-hourglass-half" style="color:#F59E0B;"></i>'
+        });
+        return;
+      }
+
+      // 3. 승인은 되었으나 아직 4자리 비밀번호를 설정하지 않은 경우
+      if (!account.pw) {
+        if (pw !== STUDENT_DEFAULT_PIN) {
+          showCustomDialog({ 
+            title: "비밀번호 오류", 
+            message: `선생님 승인이 완료되었습니다. 초기 비밀번호 [${STUDENT_DEFAULT_PIN}]을 입력하여 나만의 비밀번호 4자리를 설정해주세요.` 
           });
           return;
         }
@@ -1968,27 +2087,29 @@
         document.getElementById('new-custom-pw-confirm').value = "";
         openModal('set-pw-modal');
         return;
-      } else {
-        if (pw !== userCustomPw) {
-          showCustomDialog({ 
-            title: "비밀번호 불일치", 
-            message: "설정하신 비밀번호 4자리가 일치하지 않습니다.\n(비밀번호 분실 시 지도교사 선생님께 초기화를 요청하세요.)" 
-          });
-          return;
-        }
-
-        currentRole = 'student';
-        currentClass = inputName;
-        sessionStorage.setItem('sc_logged_role', currentRole);
-        sessionStorage.setItem('sc_logged_class', currentClass);
-        sessionStorage.setItem('sc_active_tab', 'home');
-
-        document.getElementById('login-student-pw').value = "";
-        document.getElementById('login-student-name-input').value = "";
-        applyAuthUI();
-        switchTab('home');
-        showToast(`🌱 [${currentClass}] 로그인 완료! 환영합니다.`);
       }
+
+      // 4. 승인 완료 및 비밀번호 설정 완료된 학생
+      if (pw !== account.pw) {
+        showCustomDialog({ 
+          title: "비밀번호 불일치", 
+          message: "설정하신 비밀번호 4자리가 일치하지 않습니다.\n(비밀번호 분실 시 지도교사 선생님께 초기화를 요청하세요.)" 
+        });
+        return;
+      }
+
+      // 로그인 성공
+      currentRole = 'student';
+      currentClass = inputName;
+      sessionStorage.setItem('sc_logged_role', currentRole);
+      sessionStorage.setItem('sc_logged_class', currentClass);
+      sessionStorage.setItem('sc_active_tab', 'home');
+
+      document.getElementById('login-student-pw').value = "";
+      document.getElementById('login-student-name-input').value = "";
+      applyAuthUI();
+      switchTab('home');
+      showToast(`🌱 [${currentClass}] 로그인 완료! 환영합니다.`);
     }
 
     async function handleSaveCustomPassword(e) {
@@ -2011,9 +2132,9 @@
         return;
       }
 
-      studentPasswords[pendingStudentName] = newPw;
-      localStorage.setItem('sc_student_pws_v1', JSON.stringify(studentPasswords));
-      pushToCloudStore('student_passwords', studentPasswords);
+      studentAccounts[pendingStudentName] = { pw: newPw, approved: true };
+      localStorage.setItem('sc_student_accounts_v1', JSON.stringify(studentAccounts));
+      pushToCloudStore('student_accounts', studentAccounts);
 
       closeModal('set-pw-modal');
 
@@ -2058,7 +2179,6 @@
       pushToCloudStore('item_requests', itemRequests);
     }
   
-    // ⭐️ 4. 새로고침 시 세션 복원 (창을 완전히 닫았을 때만 자동 로그아웃)
     function restoreSession() {
       if (currentRole) {
         applyAuthUI();
@@ -2070,7 +2190,6 @@
       }
     }
   
-    // ⭐️ 1 & 2. 학생과 교사의 권한에 따른 폼/버튼 표시 제어
     function applyAuthUI() {
       const navBar = document.getElementById('main-nav-bar');
       const authContainer = document.getElementById('auth-status-container');
@@ -2078,7 +2197,6 @@
       const teacherMenu = document.getElementById('teacher-menu');
       const badge = document.getElementById('header-user-badge');
 
-      // 교사 전용 안건 등록 카드 및 예산 조절 카드
       const teacherAgendaCard = document.getElementById('teacher-agenda-create-card');
       const teacherBudgetCard = document.getElementById('teacher-budget-control-card');
       const budgetActionTh = document.getElementById('budget-action-th');
@@ -2108,7 +2226,6 @@
         document.getElementById('myinfo-title').innerText = `[${currentClass}] 자치활동 기록`;
         document.getElementById('myinfo-badge').innerText = `${currentClass} 전용`;
 
-        // 학생에게는 안건 등록 카드와 예산 조절 폼을 완전 숨김
         if (teacherAgendaCard) teacherAgendaCard.classList.add('hidden');
         if (teacherBudgetCard) teacherBudgetCard.classList.add('hidden');
         if (budgetActionTh) budgetActionTh.classList.add('hidden');
@@ -2657,7 +2774,8 @@
   
     function loadAdminData() {
       renderAdminOpinionList();
-      renderAdminPwResetList();
+      renderAdminPendingList();
+      renderAdminApprovedMemberList();
     }
   
     function renderAdminOpinionList() {
@@ -2684,7 +2802,6 @@
       `).join('');
     }
   
-    // ⭐️ 교사 전용 안건 등록
     async function addNewAgenda() {
       const title = document.getElementById('new-agenda-title').value.trim();
       const status = document.getElementById('new-agenda-status').value;
