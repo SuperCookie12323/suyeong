@@ -570,56 +570,35 @@
       color: #475569;
       font-weight: 700;
     }
-    
-    .like-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: #F1F5F9;
-      color: #64748B;
-      border: 1px solid #E2E8F0;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .like-btn:hover {
-      background: #FEE2E2;
-      color: #E11D48;
-      border-color: #FECDD3;
-      transform: scale(1.04);
-    }
-    .like-btn.liked {
-      background: #FEE2E2;
-      color: #E11D48;
-      border-color: #FDA4AF;
-      box-shadow: 0 2px 6px rgba(225, 29, 72, 0.15);
-    }
 
-    /* 찬반 투표 컴포넌트 */
-    .vote-box {
+    /* 제안 카드 및 제안별 찬반 투표 컴포넌트 */
+    .proposal-card {
       background: #FFFFFF;
       border: 1.5px solid var(--border);
       border-radius: 14px;
-      padding: 18px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .proposal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
     }
     .vote-btn-agree {
       background: #DCFCE7;
       color: #166534;
       border: 1.5px solid #86EFAC;
-      padding: 12px;
-      border-radius: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
       font-weight: 800;
-      font-size: 14px;
+      font-size: 13px;
       cursor: pointer;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
       flex: 1;
       transition: all 0.15s;
     }
@@ -633,15 +612,15 @@
       background: #FEE2E2;
       color: #991B1B;
       border: 1.5px solid #FECACA;
-      padding: 12px;
-      border-radius: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
       font-weight: 800;
-      font-size: 14px;
+      font-size: 13px;
       cursor: pointer;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
       flex: 1;
       transition: all 0.15s;
     }
@@ -845,18 +824,18 @@
       </div>
     </section>
 
-    <!-- ⭐️ [탭 0.8] 🎙️ 실시간 회의 탭 (찬반투표, 실시간 의견 토론, 서기 회의록 작성 및 HWP 다운로드) -->
+    <!-- ⭐️ [탭 0.8] 🎙️ 실시간 회의 탭 (안건 선택 ➔ 하위 세부 제안 등록 ➔ 제안별 찬반투표 및 회의록) -->
     <section id="tab-live-meeting" class="section-tab">
       <div class="card" style="background: linear-gradient(135deg, #4338CA 0%, #6366F1 100%); color:white; padding:24px; border-radius:20px; margin-bottom:20px;">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
           <div>
             <span style="background:rgba(255,255,255,0.2); padding:4px 10px; border-radius:20px; font-size:12px; font-weight:800;">🔴 LIVE 실시간 자치 총회</span>
-            <h2 style="font-size:22px; font-weight:900; margin:6px 0 2px 0;">학생자치회 실시간 회의장</h2>
-            <p style="font-size:13px; opacity:0.9;">현재 상정된 안건에 대해 실시간으로 찬반 투표하고 자유롭게 발언·의견을 남겨주세요.</p>
+            <h2 style="font-size:22px; font-weight:900; margin:6px 0 2px 0;">실시간 회의 및 제안별 찬반 투표장</h2>
+            <p style="font-size:13px; opacity:0.9;">논의 안건을 선택하고, 학생들이 내놓은 구체적인 제안(안)에 대해 각각 찬반 투표를 진행합니다.</p>
           </div>
           <!-- 안건 선택 드롭다운 -->
           <div style="background:rgba(255,255,255,0.15); padding:10px 14px; border-radius:14px; backdrop-filter:blur(6px); border:1px solid rgba(255,255,255,0.25);">
-            <label style="font-size:11px; font-weight:700; opacity:0.9; display:block; margin-bottom:4px;">회의 대상 안건 선택</label>
+            <label style="font-size:11px; font-weight:700; opacity:0.9; display:block; margin-bottom:4px;">현재 논의할 안건 선택</label>
             <select id="live-meeting-agenda-select" onchange="changeLiveMeetingAgenda(this.value)" style="background:white; color:#1E1B4B; font-weight:800; padding:8px 12px; border-radius:8px; border:none; font-size:13px; outline:none;">
             </select>
           </div>
@@ -875,40 +854,37 @@
         </p>
       </div>
 
-      <!-- 🗳️ 실시간 찬/반 투표 영역 -->
-      <div class="vote-box">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <span style="font-size:15px; font-weight:800; color:#1E1B4B;">
-            <i class="fa-solid fa-square-poll-vertical" style="color:var(--primary);"></i> 실시간 안건 찬반 투표
-          </span>
-          <span id="live-vote-total-count" style="font-size:13px; font-weight:800; color:var(--primary);">총 0명 투표 참여</span>
-        </div>
-
-        <div style="display:flex; gap:12px; margin-bottom:12px;">
-          <button id="btn-live-vote-agree" onclick="handleLiveVoteAction('agree')" class="vote-btn-agree">
-            <i class="fa-solid fa-thumbs-up"></i> 찬성 <span id="live-vote-agree-count">0</span>
-          </button>
-          <button id="btn-live-vote-disagree" onclick="handleLiveVoteAction('disagree')" class="vote-btn-disagree">
-            <i class="fa-solid fa-thumbs-down"></i> 반대 <span id="live-vote-disagree-count">0</span>
-          </button>
-        </div>
-
-        <!-- 실시간 득표율 그래프 바 -->
-        <div style="height:12px; width:100%; background:#E2E8F0; border-radius:8px; overflow:hidden; display:flex; margin-bottom:8px;">
-          <div id="live-vote-bar-agree" style="height:100%; width:50%; background:#16A34A; transition:width 0.3s ease;"></div>
-          <div id="live-vote-bar-disagree" style="height:100%; width:50%; background:#DC2626; transition:width 0.3s ease;"></div>
-        </div>
-
-        <!-- 🔒 지도교사 전용: 찬반 투표자 실명 명부 확인 -->
-        <div id="live-teacher-vote-roster-section" class="hidden" style="margin-top:12px; padding-top:10px; border-top:1px dashed #CBD5E1;">
-          <button onclick="toggleLiveTeacherVoteRoster()" class="btn btn-secondary" style="padding:6px 12px; font-size:12px; width:100%;">
-            <i class="fa-solid fa-user-shield"></i> [지도교사 전용] 찬/반 투표자 실명 명부 열람하기
-          </button>
-          <div id="live-teacher-vote-roster-box" class="hidden" style="margin-top:8px; background:#F8FAFC; padding:12px; border-radius:10px; font-size:12px; border:1px solid #E2E8F0;">
-            <div style="margin-bottom:6px;"><b style="color:#166534;">👍 찬성한 학생 (<span id="live-roster-agree-count">0</span>명):</b> <span id="live-roster-agree-list" style="color:#334155;">-</span></div>
-            <div><b style="color:#DC2626;">👎 반대한 학생 (<span id="live-roster-disagree-count">0</span>명):</b> <span id="live-roster-disagree-list" style="color:#334155;">-</span></div>
+      <!-- 💡 새로운 세부 제안(안) 등록 폼 -->
+      <div class="card" style="background:#FAF5FF; border: 1.5px solid #E9D5FF; margin-bottom:20px;">
+        <h4 style="font-size:15px; font-weight:800; color:#6B21A8; margin-bottom:8px;">
+          <i class="fa-solid fa-lightbulb"></i> 이 안건에 대한 우리 반/내 해결 방안(제안) 등록하기
+        </h4>
+        <p style="font-size:12px; color:#7E22CE; margin-bottom:12px;">안건을 해결할 구체적인 제안을 내놓으면, 아래에 실시간 찬/반 투표 카드가 즉시 생성됩니다.</p>
+        
+        <form onsubmit="handleCreateProposal(event)" style="display:flex; flex-direction:column; gap:8px;">
+          <div style="display:grid; grid-template-columns: 1fr 2fr; gap:8px;">
+            <input type="text" id="prop-author" placeholder="제안 학급/작성자 (예: 6-2 반장 / 기획부)" required style="padding:10px; font-size:13px; background:white;">
+            <input type="text" id="prop-title" placeholder="제안 명칭 (예: 월·수·금 고학년, 화·목 저학년 운동장 이용제)" required style="padding:10px; font-size:13px; background:white;">
           </div>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="prop-desc" placeholder="구체적인 실천 방법 및 제안 이유를 자세히 적어주세요." required style="flex-grow:1; font-size:13px; padding:10px 12px; background:white;">
+            <button type="submit" class="btn btn-primary" style="background:#7C3AED; padding:10px 18px; font-size:13px; white-space:nowrap;">
+              <i class="fa-solid fa-plus"></i> 제안(안) 상정하기
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 🗳️ 상정된 세부 제안(안) 목록 & 제안별 실시간 찬반 투표 카드 컨테이너 -->
+      <div style="margin-bottom:24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h4 style="font-size:16px; font-weight:800; color:#1E1B4B; display:flex; align-items:center; gap:6px;">
+            <i class="fa-solid fa-check-to-slot" style="color:var(--primary);"></i> 상정된 세부 제안(안) 및 실시간 찬반 투표 (<span id="live-proposal-count">0</span>개)
+          </h4>
+          <span style="font-size:12px; color:var(--text-sub);">제안별 1인 1표 투표 진행</span>
         </div>
+
+        <div id="live-proposals-container"></div>
       </div>
 
       <!-- 📝 공식 회의록 열람 및 서기/교사 회의록 작성 & HWP 다운로드 -->
@@ -944,40 +920,9 @@
           </button>
         </div>
       </div>
-
-      <!-- 💬 실시간 토론 및 발언 의견 피드 -->
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <h4 style="font-size:16px; font-weight:800; color:#1E1B4B; display:flex; align-items:center; gap:6px;">
-            <i class="fa-solid fa-comments" style="color:var(--primary);"></i> 실시간 회의 발언 및 의견 (<span id="live-opinion-count">0</span>)
-          </h4>
-          <span style="font-size:12px; color:var(--text-sub);">전교생 실시간 동기화</span>
-        </div>
-
-        <!-- 의견 등록 폼 -->
-        <form onsubmit="handleLiveOpinionSubmit(event)" style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px; background:#F8FAFC; padding:14px; border-radius:12px; border:1px solid var(--border);">
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-            <input type="text" id="live-quick-author" placeholder="발언자/직책 (예: 반장 / 김민수)" required style="padding:8px 10px; font-size:12px;">
-            <select id="live-quick-category" style="padding:8px 10px; font-size:12px;">
-              <option value="학급회의록">📋 학급 회의 결과</option>
-              <option value="개인의견">💡 현장 발언/제안</option>
-              <option value="찬반투표">🗳️ 찬/반 의견</option>
-            </select>
-          </div>
-          <div style="display:flex; gap:8px;">
-            <input type="text" id="live-quick-content" placeholder="이 안건에 대한 우리 반의 생각이나 찬/반 이유를 적어주세요..." required style="flex-grow:1; font-size:13px; padding:10px 12px;">
-            <button type="submit" class="btn btn-primary" style="padding:10px 18px; font-size:13px; white-space:nowrap;">
-              <i class="fa-solid fa-paper-plane"></i> 발언 등록
-            </button>
-          </div>
-        </form>
-
-        <!-- 의견 목록 -->
-        <div id="live-opinions-container"></div>
-      </div>
     </section>
   
-    <!-- [탭 1] 자치회 안건 확인하기 (목록 열람 & 교사 안건 등록) -->
+    <!-- [탭 1] 자치회 안건 확인하기 -->
     <section id="tab-agendas" class="section-tab">
       <div class="hero-banner">
         <div>
@@ -1572,7 +1517,9 @@
     let currentCalDate = new Date();
     let pendingStudentName = null;
 
-    let agendaVotes = JSON.parse(localStorage.getItem('sc_agenda_votes_v1')) || {};
+    // ⭐️ 안건 하위 세부 제안(안) 데이터 및 회의록 저장소
+    // { "안건제목": [ { id: 1, author: "6-2 반장", title: "제안명", desc: "내용", agreeList: [], disagreeList: [] } ] }
+    let agendaProposals = JSON.parse(localStorage.getItem('sc_agenda_proposals_v1')) || {};
     let agendaMinutes = JSON.parse(localStorage.getItem('sc_agenda_minutes_v1')) || {};
 
     let studentAccounts = JSON.parse(localStorage.getItem('sc_student_accounts_v1')) || {};
@@ -1706,7 +1653,7 @@
             if (row.key === 'item_requests' && row.value) itemRequests = row.value;
             if (row.key === 'student_accounts' && row.value) studentAccounts = row.value;
             if (row.key === 'submissions' && row.value) submissions = row.value;
-            if (row.key === 'agenda_votes' && row.value) agendaVotes = row.value;
+            if (row.key === 'agenda_proposals' && row.value) agendaProposals = row.value;
             if (row.key === 'agenda_minutes' && row.value) agendaMinutes = row.value;
           });
 
@@ -1716,7 +1663,7 @@
           localStorage.setItem('sc_item_requests_v2', JSON.stringify(itemRequests));
           localStorage.setItem('sc_student_accounts_v1', JSON.stringify(studentAccounts));
           localStorage.setItem('sc_submissions_v2', JSON.stringify(submissions));
-          localStorage.setItem('sc_agenda_votes_v1', JSON.stringify(agendaVotes));
+          localStorage.setItem('sc_agenda_proposals_v1', JSON.stringify(agendaProposals));
           localStorage.setItem('sc_agenda_minutes_v1', JSON.stringify(agendaMinutes));
 
           renderHomeView();
@@ -1950,7 +1897,7 @@
     }
 
     // ==========================================
-    // ⭐️ [신설] 🎙️ 실시간 회의 탭 핵심 로직
+    // ⭐️ [신설] 🎙️ 실시간 회의 탭 (제안별 찬반투표 & 회의록)
     // ==========================================
     function updateLiveAgendaDropdown() {
       const select = document.getElementById('live-meeting-agenda-select');
@@ -1973,13 +1920,14 @@
       renderLiveMeetingTab();
     }
 
+    // ⭐️ 실시간 회의 탭 화면 전체 렌더링
     function renderLiveMeetingTab() {
       updateLiveAgendaDropdown();
 
       if (!currentLiveAgendaTitle || agendas.length === 0) {
         document.getElementById('live-agenda-title').innerText = "상정된 안건이 없습니다.";
-        document.getElementById('live-agenda-desc').innerText = "선생님께서 새로운 안건을 등록하면 이곳에서 실시간 회의를 진행할 수 있습니다.";
-        document.getElementById('live-opinions-container').innerHTML = `<p style="text-align:center; padding:20px; color:var(--text-sub);">회의가 진행 중인 안건이 없습니다.</p>`;
+        document.getElementById('live-agenda-desc').innerText = "선생님께서 새로운 안건을 등록하면 이곳에서 실시간 회의 및 제안별 찬반 투표를 진행할 수 있습니다.";
+        document.getElementById('live-proposals-container').innerHTML = `<p style="text-align:center; padding:20px; color:var(--text-sub);">상정된 안건이 없습니다.</p>`;
         return;
       }
 
@@ -1994,48 +1942,214 @@
       statusPill.innerText = agenda.status;
       statusPill.className = 'status-pill ' + (agenda.status === '의견 수렴 중' ? 'status-open' : (agenda.status === '심의 중' ? 'status-review' : 'status-done'));
 
-      // 1. 찬반 투표 렌더링
-      if (!agendaVotes[agenda.title]) {
-        agendaVotes[agenda.title] = { agreeList: [], disagreeList: [] };
+      // 1. 해당 안건의 세부 제안(안) 목록 & 제안별 찬반 투표 카드 렌더링
+      renderProposalVoteCards(agenda.title);
+
+      // 2. 공식 회의록 렌더링
+      renderLiveMinutesView(agenda.title);
+    }
+
+    // ⭐️ 핵심: 세부 제안(안)별 찬반 투표 카드 렌더링
+    function renderProposalVoteCards(agendaTitle) {
+      if (!agendaProposals[agendaTitle]) {
+        agendaProposals[agendaTitle] = [];
       }
-      const v = agendaVotes[agenda.title];
-      const agreeCount = v.agreeList.length;
-      const disagreeCount = v.disagreeList.length;
-      const totalCount = agreeCount + disagreeCount;
+      const pList = agendaProposals[agendaTitle];
+      document.getElementById('live-proposal-count').innerText = pList.length;
 
-      document.getElementById('live-vote-agree-count').innerText = agreeCount;
-      document.getElementById('live-vote-disagree-count').innerText = disagreeCount;
-      document.getElementById('live-vote-total-count').innerText = `총 ${totalCount}명 투표 참여`;
+      const container = document.getElementById('live-proposals-container');
+      if (pList.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:32px 16px; background:#FFFFFF; border-radius:14px; border:1px dashed var(--border); color:var(--text-sub);">
+            <i class="fa-solid fa-lightbulb" style="font-size:28px; color:#CBD5E1; margin-bottom:8px;"></i>
+            <p style="font-size:14px; font-weight:700; color:#475569; margin-bottom:4px;">아직 상정된 세부 해결 방안(제안)이 없습니다.</p>
+            <p style="font-size:12px;">위 등록 폼에서 우리 반의 아이디어나 대안을 상정하면 실시간 찬/반 투표가 시작됩니다!</p>
+          </div>
+        `;
+        return;
+      }
 
-      const agreePercent = totalCount > 0 ? (agreeCount / totalCount) * 100 : 50;
-      const disagreePercent = totalCount > 0 ? (disagreeCount / totalCount) * 100 : 50;
-      document.getElementById('live-vote-bar-agree').style.width = `${agreePercent}%`;
-      document.getElementById('live-vote-bar-disagree').style.width = `${disagreePercent}%`;
+      const currentUserIdentifier = currentRole === 'teacher' ? '교사(관리자)' : (currentClass || 'guest');
+
+      container.innerHTML = pList.map(p => {
+        const agreeList = Array.isArray(p.agreeList) ? p.agreeList : [];
+        const disagreeList = Array.isArray(p.disagreeList) ? p.disagreeList : [];
+        const agreeCount = agreeList.length;
+        const disagreeCount = disagreeList.length;
+        const totalCount = agreeCount + disagreeCount;
+
+        const agreePercent = totalCount > 0 ? (agreeCount / totalCount) * 100 : 50;
+        const disagreePercent = totalCount > 0 ? (disagreeCount / totalCount) * 100 : 50;
+
+        const isAgree = agreeList.includes(currentUserIdentifier);
+        const isDisagree = disagreeList.includes(currentUserIdentifier);
+
+        const canDelete = (currentRole === 'teacher') || (p.class_name === currentClass);
+
+        return `
+          <div class="proposal-card">
+            <div class="proposal-header">
+              <div>
+                <span style="font-size:11px; font-weight:800; background:#EEF2FF; color:var(--primary); padding:3px 8px; border-radius:6px;">제안</span>
+                <span style="font-weight:800; font-size:16px; color:#1E293B; margin-left:4px;">${p.title}</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:12px; color:var(--text-sub);">제안자: <b>${p.author}</b></span>
+                ${canDelete ? `
+                <button onclick="deleteProposal(${p.id})" class="btn btn-danger" style="padding:2px 8px; font-size:11px;">
+                  삭제
+                </button>` : ''}
+              </div>
+            </div>
+
+            <p style="font-size:13.5px; color:#334155; line-height:1.5; background:#F8FAFC; padding:10px 14px; border-radius:10px; margin-bottom:14px; border:1px solid #F1F5F9;">
+              ${p.desc}
+            </p>
+
+            <!-- 제안별 찬/반 투표 버튼 -->
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+              <button onclick="handleVoteProposal(${p.id}, 'agree')" class="vote-btn-agree ${isAgree ? 'voted' : ''}">
+                <i class="fa-solid fa-thumbs-up"></i> 찬성 ${agreeCount}표
+              </button>
+              <button onclick="handleVoteProposal(${p.id}, 'disagree')" class="vote-btn-disagree ${isDisagree ? 'voted' : ''}">
+                <i class="fa-solid fa-thumbs-down"></i> 반대 ${disagreeCount}표
+              </button>
+            </div>
+
+            <!-- 찬/반 득표율 그래프 바 -->
+            <div style="height:10px; width:100%; background:#E2E8F0; border-radius:6px; overflow:hidden; display:flex; margin-bottom:6px;">
+              <div style="height:100%; width:${agreePercent}%; background:#16A34A; transition:width 0.3s ease;"></div>
+              <div style="height:100%; width:${disagreePercent}%; background:#DC2626; transition:width 0.3s ease;"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700; color:var(--text-sub); margin-bottom:10px;">
+              <span style="color:#166534;">찬성 ${Math.round(agreePercent)}%</span>
+              <span>총 ${totalCount}명 투표</span>
+              <span style="color:#DC2626;">반대 ${Math.round(disagreePercent)}%</span>
+            </div>
+
+            <!-- 🔒 지도교사 전용: 해당 제안 투표자 실명 명부 확인 -->
+            ${currentRole === 'teacher' ? `
+            <div style="padding-top:8px; border-top:1px dashed #CBD5E1;">
+              <button onclick="toggleProposalRoster(${p.id})" style="background:none; border:none; color:#4338CA; font-size:11px; font-weight:800; cursor:pointer; padding:2px;">
+                <i class="fa-solid fa-user-shield"></i> [지도교사] 이 제안의 투표자 명부 열람 토글
+              </button>
+              <div id="prop-roster-box-${p.id}" class="hidden" style="margin-top:6px; background:#F8FAFC; padding:10px; border-radius:8px; font-size:12px; border:1px solid #E2E8F0;">
+                <div style="margin-bottom:4px;"><b style="color:#166534;">👍 찬성 (${agreeCount}명):</b> <span style="color:#334155;">${agreeList.length > 0 ? agreeList.join(', ') : '없음'}</span></div>
+                <div><b style="color:#DC2626;">👎 반대 (${disagreeCount}명):</b> <span style="color:#334155;">${disagreeList.length > 0 ? disagreeList.join(', ') : '없음'}</span></div>
+              </div>
+            </div>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ⭐️ 세부 제안 등록 핸들러
+    async function handleCreateProposal(e) {
+      e.preventDefault();
+      if (!currentLiveAgendaTitle) return;
+
+      const author = document.getElementById('prop-author').value.trim();
+      const title = document.getElementById('prop-title').value.trim();
+      const desc = document.getElementById('prop-desc').value.trim();
+
+      if (!title || !desc || !author) {
+        showToast("제안 명칭과 상세 내용을 모두 입력해주세요.");
+        return;
+      }
+
+      if (!agendaProposals[currentLiveAgendaTitle]) {
+        agendaProposals[currentLiveAgendaTitle] = [];
+      }
+
+      const newProp = {
+        id: Date.now(),
+        class_name: currentClass || "익명",
+        author: author,
+        title: title,
+        desc: desc,
+        agreeList: [],
+        disagreeList: [],
+        date: new Date().toLocaleDateString('ko-KR')
+      };
+
+      agendaProposals[currentLiveAgendaTitle].unshift(newProp);
+      localStorage.setItem('sc_agenda_proposals_v1', JSON.stringify(agendaProposals));
+      await pushToCloudStore('agenda_proposals', agendaProposals);
+
+      document.getElementById('prop-title').value = "";
+      document.getElementById('prop-desc').value = "";
+      renderProposalVoteCards(currentLiveAgendaTitle);
+      showToast("💡 새로운 세부 제안이 성공적으로 상정되었습니다!");
+    }
+
+    // ⭐️ 제안별 찬반 투표 실행 (1인 1표 토글/변경)
+    async function handleVoteProposal(proposalId, type) {
+      if (!currentLiveAgendaTitle) return;
+      const pList = agendaProposals[currentLiveAgendaTitle];
+      if (!pList) return;
+
+      const prop = pList.find(p => p.id === proposalId);
+      if (!prop) return;
+
+      if (!Array.isArray(prop.agreeList)) prop.agreeList = [];
+      if (!Array.isArray(prop.disagreeList)) prop.disagreeList = [];
 
       const user = currentRole === 'teacher' ? '교사(관리자)' : (currentClass || 'guest');
-      const isAgree = v.agreeList.includes(user);
-      const isDisagree = v.disagreeList.includes(user);
+      const agreeIdx = prop.agreeList.indexOf(user);
+      const disagreeIdx = prop.disagreeList.indexOf(user);
 
-      const btnAgree = document.getElementById('btn-live-vote-agree');
-      const btnDisagree = document.getElementById('btn-live-vote-disagree');
-
-      if (isAgree) btnAgree.classList.add('voted'); else btnAgree.classList.remove('voted');
-      if (isDisagree) btnDisagree.classList.add('voted'); else btnDisagree.classList.remove('voted');
-
-      // 🔒 지도교사 전용 투표자 명부 섹션
-      const teacherSec = document.getElementById('live-teacher-vote-roster-section');
-      if (currentRole === 'teacher') {
-        teacherSec.classList.remove('hidden');
-        document.getElementById('live-roster-agree-count').innerText = agreeCount;
-        document.getElementById('live-roster-disagree-count').innerText = disagreeCount;
-        document.getElementById('live-roster-agree-list').innerText = v.agreeList.length > 0 ? v.agreeList.join(', ') : '없음';
-        document.getElementById('live-roster-disagree-list').innerText = v.disagreeList.length > 0 ? v.disagreeList.join(', ') : '없음';
-      } else {
-        teacherSec.classList.add('hidden');
+      if (type === 'agree') {
+        if (agreeIdx !== -1) {
+          prop.agreeList.splice(agreeIdx, 1);
+          showToast("찬성 투표가 취소되었습니다.");
+        } else {
+          prop.agreeList.push(user);
+          if (disagreeIdx !== -1) prop.disagreeList.splice(disagreeIdx, 1);
+          showToast(`👍 [${prop.title}] 찬성에 투표하였습니다!`);
+        }
+      } else if (type === 'disagree') {
+        if (disagreeIdx !== -1) {
+          prop.disagreeList.splice(disagreeIdx, 1);
+          showToast("반대 투표가 취소되었습니다.");
+        } else {
+          prop.disagreeList.push(user);
+          if (agreeIdx !== -1) prop.agreeList.splice(agreeIdx, 1);
+          showToast(`👎 [${prop.title}] 반대에 투표하였습니다!`);
+        }
       }
 
-      // 2. 회의록 렌더링
-      const minData = agendaMinutes[agenda.title] || {
+      localStorage.setItem('sc_agenda_proposals_v1', JSON.stringify(agendaProposals));
+      await pushToCloudStore('agenda_proposals', agendaProposals);
+
+      renderProposalVoteCards(currentLiveAgendaTitle);
+    }
+
+    function toggleProposalRoster(propId) {
+      const box = document.getElementById(`prop-roster-box-${propId}`);
+      if (box) box.classList.toggle('hidden');
+    }
+
+    function deleteProposal(propId) {
+      showCustomDialog({
+        title: "제안 삭제",
+        message: "이 세부 제안과 투표 결과를 삭제하시겠습니까?",
+        icon: '<i class="fa-solid fa-trash" style="color:#EF4444;"></i>',
+        showCancel: true,
+        onConfirm: async () => {
+          if (agendaProposals[currentLiveAgendaTitle]) {
+            agendaProposals[currentLiveAgendaTitle] = agendaProposals[currentLiveAgendaTitle].filter(p => p.id !== propId);
+            localStorage.setItem('sc_agenda_proposals_v1', JSON.stringify(agendaProposals));
+            await pushToCloudStore('agenda_proposals', agendaProposals);
+            renderProposalVoteCards(currentLiveAgendaTitle);
+            showToast("제안이 삭제되었습니다.");
+          }
+        }
+      });
+    }
+
+    // ⭐️ 2. 공식 회의록 뷰 렌더링
+    function renderLiveMinutesView(agendaTitle) {
+      const minData = agendaMinutes[agendaTitle] || {
         date: new Date().toLocaleDateString('ko-KR') + " 정기총회",
         place: "학생자치회실",
         attendees: "자치회 임원 및 학급 대표",
@@ -2068,101 +2182,6 @@
         toggleBtn.classList.add('hidden');
       }
       document.getElementById('live-minutes-edit-form').classList.add('hidden');
-
-      // 3. 발언 의견 피드 렌더링
-      const matchedOpinions = submissions.filter(s => s.agenda === agenda.title);
-      document.getElementById('live-opinion-count').innerText = matchedOpinions.length;
-
-      const opContainer = document.getElementById('live-opinions-container');
-      if (matchedOpinions.length === 0) {
-        opContainer.innerHTML = `
-          <div style="text-align:center; padding:24px 10px; background:#F8FAFC; border-radius:12px; border:1px dashed var(--border); color:var(--text-sub); font-size:13px;">
-            <i class="fa-regular fa-comment-dots" style="font-size:24px; color:#CBD5E1; margin-bottom:6px;"></i>
-            <p>아직 등록된 실시간 발언이 없습니다. 첫 번째 의견을 남겨주세요!</p>
-          </div>
-        `;
-      } else {
-        const currentUserIdentifier = currentRole === 'teacher' ? 'teacher' : (currentClass || 'guest');
-        opContainer.innerHTML = matchedOpinions.map(op => {
-          let badgeColor = "#EEF2FF; color:#4F46E5;";
-          if (op.category === '찬반투표') badgeColor = "#FEF3C7; color:#B45309;";
-          if (op.category === '개인의견') badgeColor = "#ECFDF5; color:#065F46;";
-
-          const likedBy = Array.isArray(op.likedBy) ? op.likedBy : [];
-          const isLiked = likedBy.includes(currentUserIdentifier);
-          const likeCount = likedBy.length;
-          const canDelete = (currentRole === 'teacher') || (op.class_name === currentClass);
-
-          return `
-            <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:8px;">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                  <span style="font-size:11px; font-weight:800; background:${badgeColor} padding:2px 6px; border-radius:4px;">${op.category || '의견'}</span>
-                  <span style="font-size:13px; font-weight:800; color:#1E293B;">${op.class_name}</span>
-                  <span style="font-size:12px; color:var(--text-sub);">(${op.author})</span>
-                </div>
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <span style="font-size:11px; color:#94A3B8;">${op.date}</span>
-                  ${canDelete ? `
-                  <button onclick="deleteSingleOpinion(${op.id})" style="background:none; border:none; color:#EF4444; font-size:11px; font-weight:700; cursor:pointer; padding:2px;">
-                    삭제
-                  </button>` : ''}
-                </div>
-              </div>
-              <p style="font-size:13px; color:#334155; line-height:1.5; white-space:pre-line; margin-bottom:8px;">${op.content}</p>
-              
-              <div style="display:flex; justify-content:flex-end;">
-                <button onclick="toggleLikeOpinion(${op.id})" class="like-btn ${isLiked ? 'liked' : ''}">
-                  <i class="fa-solid fa-heart" style="${isLiked ? 'color:#E11D48;' : ''}"></i> 좋아요 <span>${likeCount}</span>
-                </button>
-              </div>
-            </div>
-          `;
-        }).join('');
-      }
-    }
-
-    async function handleLiveVoteAction(type) {
-      if (!currentLiveAgendaTitle) return;
-      const agendaTitle = currentLiveAgendaTitle;
-      if (!agendaVotes[agendaTitle]) agendaVotes[agendaTitle] = { agreeList: [], disagreeList: [] };
-
-      const user = currentRole === 'teacher' ? '교사(관리자)' : (currentClass || 'guest');
-      const v = agendaVotes[agendaTitle];
-
-      const agreeIdx = v.agreeList.indexOf(user);
-      const disagreeIdx = v.disagreeList.indexOf(user);
-
-      if (type === 'agree') {
-        if (agreeIdx !== -1) {
-          v.agreeList.splice(agreeIdx, 1);
-          showToast("찬성 투표가 취소되었습니다.");
-        } else {
-          v.agreeList.push(user);
-          if (disagreeIdx !== -1) v.disagreeList.splice(disagreeIdx, 1);
-          showToast("👍 찬성에 투표하였습니다!");
-        }
-      } else if (type === 'disagree') {
-        if (disagreeIdx !== -1) {
-          v.disagreeList.splice(disagreeIdx, 1);
-          showToast("반대 투표가 취소되었습니다.");
-        } else {
-          v.disagreeList.push(user);
-          if (agreeIdx !== -1) v.agreeList.splice(agreeIdx, 1);
-          showToast("👎 반대에 투표하였습니다!");
-        }
-      }
-
-      localStorage.setItem('sc_agenda_votes_v1', JSON.stringify(agendaVotes));
-      await pushToCloudStore('agenda_votes', agendaVotes);
-
-      renderLiveMeetingTab();
-      renderAgendas();
-    }
-
-    function toggleLiveTeacherVoteRoster() {
-      const box = document.getElementById('live-teacher-vote-roster-box');
-      box.classList.toggle('hidden');
     }
 
     function toggleLiveMinutesEditMode() {
@@ -2184,10 +2203,11 @@
       localStorage.setItem('sc_agenda_minutes_v1', JSON.stringify(agendaMinutes));
       await pushToCloudStore('agenda_minutes', agendaMinutes);
 
-      renderLiveMeetingTab();
+      renderLiveMinutesView(currentLiveAgendaTitle);
       showToast("📝 공식 회의록이 실시간으로 저장되었습니다!");
     }
 
+    // ⭐️ 3. 회의록 및 제안별 찬반 투표 결과 포함 한글(HWP) 다운로드
     function downloadLiveHwpMinutes() {
       if (!currentLiveAgendaTitle) return;
       const agendaTitle = currentLiveAgendaTitle;
@@ -2197,8 +2217,17 @@
         attendees: "자치회 임원 및 학급 대표",
         content: "작성된 회의록 내용이 없습니다."
       };
-      const v = agendaVotes[agendaTitle] || { agreeList: [], disagreeList: [] };
+      const pList = agendaProposals[agendaTitle] || [];
       const agendaObj = agendas.find(a => a.title === agendaTitle) || { desc: '-' };
+
+      let proposalsHtml = pList.length > 0 ? pList.map((p, idx) => `
+        <tr>
+          <td style="text-align:center;">제안 ${idx + 1}</td>
+          <td><b>${p.title}</b><br><span style="font-size:9pt; color:#555;">${p.desc}</span></td>
+          <td style="text-align:center;">${p.author}</td>
+          <td style="text-align:center;">찬성 ${p.agreeList.length}표 / 반대 ${p.disagreeList.length}표</td>
+        </tr>
+      `).join('') : `<tr><td colspan="4" style="text-align:center; padding:10px;">상정된 세부 제안이 없습니다.</td></tr>`;
 
       const htmlContent = `
         <!DOCTYPE html>
@@ -2211,7 +2240,7 @@
             h1 { font-size: 18pt; text-align: center; margin-bottom: 20px; }
             table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
             th, td { border: 1px solid #000; padding: 8px 10px; font-size: 10pt; }
-            th { background-color: #f2f2f2; width: 22%; text-align: center; }
+            th { background-color: #f2f2f2; text-align: center; }
             .section-title { font-size: 12pt; font-weight: bold; margin-top: 20px; margin-bottom: 6px; }
           </style>
         </head>
@@ -2219,30 +2248,38 @@
           <h1>수영초등학교 학생자치회 회의록</h1>
           <table>
             <tr>
-              <th>안 건 명</th>
+              <th style="width:20%;">안 건 명</th>
               <td colspan="3"><b>${agendaTitle}</b></td>
             </tr>
             <tr>
-              <th>회의 일시</th>
-              <td>${minData.date || '-'}</td>
-              <th>회의 장소</th>
-              <td>${minData.place || '-'}</td>
+              <th style="width:20%;">회의 일시</th>
+              <td style="width:30%;">${minData.date || '-'}</td>
+              <th style="width:20%;">회의 장소</th>
+              <td style="width:30%;">${minData.place || '-'}</td>
             </tr>
             <tr>
               <th>참 석 자</th>
               <td colspan="3">${minData.attendees || '-'}</td>
             </tr>
-            <tr>
-              <th>투표 결과</th>
-              <td colspan="3">
-                <b>총 투표:</b> ${v.agreeList.length + v.disagreeList.length}명 
-                (<b>찬성:</b> ${v.agreeList.length}명, <b>반대:</b> ${v.disagreeList.length}명)
-              </td>
-            </tr>
           </table>
 
           <div class="section-title">■ 안건 개요</div>
           <p style="padding: 8px; border: 1px dashed #ccc; background: #fafafa;">${agendaObj.desc}</p>
+
+          <div class="section-title">■ 상정된 세부 제안(안) 및 찬반 투표 결과</div>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:12%;">구분</th>
+                <th style="width:48%;">제안 명칭 및 상세 내용</th>
+                <th style="width:18%;">제안자</th>
+                <th style="width:22%;">찬/반 투표 결과</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${proposalsHtml}
+            </tbody>
+          </table>
 
           <div class="section-title">■ 회의 토의 내용 및 최종 결정 사항</div>
           <div style="border: 1px solid #000; padding: 12px; min-height: 180px; white-space: pre-wrap;">${minData.content || '기록된 내용이 없습니다.'}</div>
@@ -2263,52 +2300,6 @@
       document.body.removeChild(link);
 
       showToast("📥 회의록 한글(HWP) 파일이 다운로드되었습니다!");
-    }
-
-    async function handleLiveOpinionSubmit(e) {
-      e.preventDefault();
-      if (!currentLiveAgendaTitle) return;
-
-      const author = document.getElementById('live-quick-author').value.trim();
-      const category = document.getElementById('live-quick-category').value;
-      const content = document.getElementById('live-quick-content').value.trim();
-
-      if (!content || !author) {
-        showToast("작성자와 내용을 입력해주세요.");
-        return;
-      }
-
-      const newOp = {
-        id: Date.now(),
-        agenda: currentLiveAgendaTitle,
-        class_name: currentClass || "익명",
-        author: author,
-        category: category,
-        content: content,
-        likes: 0,
-        likedBy: [],
-        date: new Date().toLocaleDateString('ko-KR')
-      };
-
-      submissions.unshift(newOp);
-      localStorage.setItem('sc_submissions_v2', JSON.stringify(submissions));
-      await pushToCloudStore('submissions', submissions);
-
-      if (supabaseClient) {
-        try {
-          await supabaseClient.from('opinions').insert([{
-            class_name: currentClass,
-            author: author,
-            category: category,
-            content: `[${currentLiveAgendaTitle}] ${content}`
-          }]);
-        } catch(err) { console.error(err); }
-      }
-
-      document.getElementById('live-quick-content').value = "";
-      renderLiveMeetingTab();
-      renderAgendas();
-      showToast("🎉 발언이 성공적으로 등록되었습니다!");
     }
 
     // ==========================================
@@ -2888,6 +2879,8 @@
         if (ag.status === '심의 중') statusClass = 'status-review';
         if (ag.status === '반영 완료') statusClass = 'status-done';
 
+        const pCount = (agendaProposals[ag.title] || []).length;
+
         return `
           <div class="agenda-card" onclick="openAgendaModal(${ag.id})">
             <div>
@@ -2902,7 +2895,7 @@
               <p class="agenda-preview">${ag.desc}</p>
             </div>
             <div class="agenda-meta">
-              <span><i class="fa-regular fa-calendar"></i> ${ag.date || '최신'}</span>
+              <span><i class="fa-solid fa-lightbulb" style="color:var(--primary);"></i> 상정된 제안 <b>${pCount}</b>개</span>
               <span style="color:var(--primary); font-weight:700;">상세보기 & 회의참여 →</span>
             </div>
           </div>
@@ -2913,7 +2906,7 @@
     function deleteSingleAgenda(id, title) {
       showCustomDialog({
         title: "안건 삭제",
-        message: `[${title}] 안건과 등록된 모든 의견, 회의록을 삭제하시겠습니까?`,
+        message: `[${title}] 안건과 등록된 모든 세부 제안 및 회의록을 삭제하시겠습니까?`,
         icon: '<i class="fa-solid fa-trash" style="color:#EF4444;"></i>',
         showCancel: true,
         onConfirm: async () => {
@@ -2922,16 +2915,16 @@
           }
           agendas = agendas.filter(a => a.id !== id);
           submissions = submissions.filter(s => s.agenda !== title);
-          delete agendaVotes[title];
+          delete agendaProposals[title];
           delete agendaMinutes[title];
 
           localStorage.setItem('sc_agendas_v2', JSON.stringify(agendas));
           localStorage.setItem('sc_submissions_v2', JSON.stringify(submissions));
-          localStorage.setItem('sc_agenda_votes_v1', JSON.stringify(agendaVotes));
+          localStorage.setItem('sc_agenda_proposals_v1', JSON.stringify(agendaProposals));
           localStorage.setItem('sc_agenda_minutes_v1', JSON.stringify(agendaMinutes));
 
           await pushToCloudStore('submissions', submissions);
-          await pushToCloudStore('agenda_votes', agendaVotes);
+          await pushToCloudStore('agenda_proposals', agendaProposals);
           await pushToCloudStore('agenda_minutes', agendaMinutes);
 
           renderAgendas();
@@ -2962,55 +2955,6 @@
       currentLiveAgendaTitle = selectedAgendaForModal.title;
       closeModal('agenda-modal');
       switchTab('live-meeting');
-    }
-
-    function deleteSingleOpinion(opinionId) {
-      showCustomDialog({
-        title: "의견 삭제",
-        message: "이 의견을 삭제하시겠습니까?",
-        showCancel: true,
-        onConfirm: async () => {
-          submissions = submissions.filter(s => s.id !== opinionId);
-          localStorage.setItem('sc_submissions_v2', JSON.stringify(submissions));
-          await pushToCloudStore('submissions', submissions);
-
-          if (currentActiveTab === 'live-meeting') {
-            renderLiveMeetingTab();
-          }
-          renderAdminOpinionList();
-          showToast("의견이 삭제되었습니다.");
-        }
-      });
-    }
-
-    async function toggleLikeOpinion(opinionId) {
-      const target = submissions.find(s => s.id === opinionId);
-      if (!target) return;
-
-      if (!Array.isArray(target.likedBy)) {
-        target.likedBy = [];
-      }
-
-      const currentUserIdentifier = currentRole === 'teacher' ? 'teacher' : (currentClass || 'guest');
-      const index = target.likedBy.indexOf(currentUserIdentifier);
-
-      if (index === -1) {
-        target.likedBy.push(currentUserIdentifier);
-        showToast("❤️ 좋아요를 눌렀습니다!");
-      } else {
-        target.likedBy.splice(index, 1);
-        showToast("🤍 좋아요가 취소되었습니다.");
-      }
-
-      target.likes = target.likedBy.length;
-
-      localStorage.setItem('sc_submissions_v2', JSON.stringify(submissions));
-      await pushToCloudStore('submissions', submissions);
-
-      if (currentActiveTab === 'live-meeting') {
-        renderLiveMeetingTab();
-      }
-      renderAdminOpinionList();
     }
   
     function populateAgendaSelect() {
@@ -3467,6 +3411,21 @@
           </td>
         </tr>
       `).join('');
+    }
+
+    function deleteSingleOpinion(opinionId) {
+      showCustomDialog({
+        title: "의견 삭제",
+        message: "이 의견을 삭제하시겠습니까?",
+        showCancel: true,
+        onConfirm: async () => {
+          submissions = submissions.filter(s => s.id !== opinionId);
+          localStorage.setItem('sc_submissions_v2', JSON.stringify(submissions));
+          await pushToCloudStore('submissions', submissions);
+          renderAdminOpinionList();
+          showToast("의견이 삭제되었습니다.");
+        }
+      });
     }
   
     async function addNewAgenda() {
