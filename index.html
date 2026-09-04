@@ -571,7 +571,6 @@
       font-weight: 700;
     }
 
-    /* 제안 카드 및 제안별 찬반 투표 컴포넌트 */
     .proposal-card {
       background: #FFFFFF;
       border: 1.5px solid var(--border);
@@ -719,7 +718,7 @@
         <form id="teacher-login-form" class="hidden" onsubmit="handleTeacherLoginSubmit(event)">
           <div class="form-group">
             <label><i class="fa-solid fa-shield-halved"></i> 관리자 비밀번호 입력</label>
-            <input type="password" id="login-teacher-pw" placeholder="관리자 비밀번호 입력 (기본: 0000)" required style="text-align: center; letter-spacing: 4px; font-size: 16px;">
+            <input type="password" id="login-teacher-pw" placeholder="관리자 비밀번호 입력" required style="text-align: center; letter-spacing: 4px; font-size: 16px;">
           </div>
   
           <button type="submit" class="btn btn-primary btn-block" style="background: #7C3AED; padding: 14px; font-size: 15px; margin-top: 10px;">
@@ -824,7 +823,7 @@
       </div>
     </section>
 
-    <!-- ⭐️ [탭 0.8] 🎙️ 실시간 회의 탭 (안건 선택 ➔ 하위 세부 제안 등록 ➔ 제안별 찬반투표 및 회의록) -->
+    <!-- [탭 0.8] 🎙️ 실시간 회의 탭 -->
     <section id="tab-live-meeting" class="section-tab">
       <div class="card" style="background: linear-gradient(135deg, #4338CA 0%, #6366F1 100%); color:white; padding:24px; border-radius:20px; margin-bottom:20px;">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
@@ -852,7 +851,7 @@
         </p>
       </div>
 
-      <!-- 💡 새로운 세부 제안(안) 등록 폼 -->
+      <!-- 새로운 세부 제안(안) 등록 폼 -->
       <div class="card" style="background:#FAF5FF; border: 1.5px solid #E9D5FF; margin-bottom:20px;">
         <h4 style="font-size:15px; font-weight:800; color:#6B21A8; margin-bottom:8px;">
           <i class="fa-solid fa-lightbulb"></i> 이 안건에 대한 우리 반/내 해결 방안(제안) 등록하기
@@ -873,7 +872,7 @@
         </form>
       </div>
 
-      <!-- 🗳️ 상정된 세부 제안(안) 목록 & 제안별 실시간 찬반 투표 카드 컨테이너 -->
+      <!-- 상정된 세부 제안(안) 목록 & 제안별 실시간 찬반 투표 카드 컨테이너 -->
       <div style="margin-bottom:24px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
           <h4 style="font-size:16px; font-weight:800; color:#1E1B4B; display:flex; align-items:center; gap:6px;">
@@ -885,7 +884,7 @@
         <div id="live-proposals-container"></div>
       </div>
 
-      <!-- 📝 공식 회의록 열람 및 서기/교사 회의록 작성 & HWP 다운로드 -->
+      <!-- 공식 회의록 열람 및 서기/교사 회의록 작성 & HWP 다운로드 -->
       <div class="card" style="background:#F1F5F9; border: 1.5px solid #CBD5E1;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
           <h4 style="font-size:15px; font-weight:800; color:#1E1B4B; display:flex; align-items:center; gap:6px;">
@@ -905,7 +904,6 @@
           <p id="live-minutes-display-content" style="color:#475569; white-space:pre-line;">아직 작성된 공식 회의록이 없습니다.</p>
         </div>
 
-        <!-- 서기/교사용 실시간 작성 폼 -->
         <div id="live-minutes-edit-form" class="hidden" style="margin-top:12px; background:white; padding:14px; border-radius:12px; border:1.5px solid #C7D2FE;">
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
             <input type="text" id="live-min-date" placeholder="회의 일시 (예: 2026.09.05 14:30)" style="font-size:12px; padding:8px;">
@@ -1227,11 +1225,33 @@
   
     <!-- [탭 5] 지도교사 관리 대시보드 -->
     <section id="tab-admin-dashboard" class="section-tab">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:gap:10px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px;">
         <div>
           <h2 style="font-size:22px; font-weight:800;">📊 학생자치회 지도교사 관리 센터</h2>
-          <p style="color:var(--text-sub); font-size:13px;">학생 첫 로그인 승인 관리, 비밀번호 초기화 및 구성원 명단을 확인합니다.</p>
+          <p style="color:var(--text-sub); font-size:13px;">지도교사 비밀번호 변경, 학생 계정 관리(비번 확인/삭제/초기화) 및 홈 화면을 총괄합니다.</p>
         </div>
+      </div>
+
+      <!-- ⭐️ 0. 지도교사 비밀번호 변경 카드 -->
+      <div class="card" style="background:#F5F3FF; border: 1.5px solid #DDD6FE;">
+        <h3 style="font-size:16px; font-weight:800; color:#5B21B6; margin-bottom:6px; display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-key"></i> 🔒 지도교사 관리자 비밀번호 변경
+        </h3>
+        <p style="font-size:13px; color:#6D28D9; margin-bottom:12px;">지도교사 접속 시 사용하는 비밀번호를 안전하게 변경할 수 있습니다. (초기값: 0000)</p>
+        
+        <form onsubmit="handleTeacherPasswordChange(event)" style="display:grid; grid-template-columns: 1fr 1fr auto; gap:10px; align-items:end;">
+          <div>
+            <label style="font-size:12px; font-weight:700; color:#4C1D95; display:block; margin-bottom:4px;">현재 비밀번호</label>
+            <input type="password" id="current-teacher-pw-input" placeholder="현재 비번" required style="background:white; font-size:13px; padding:10px;">
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:700; color:#4C1D95; display:block; margin-bottom:4px;">새 비밀번호</label>
+            <input type="password" id="new-teacher-pw-input" placeholder="새 비밀번호 입력" required style="background:white; font-size:13px; padding:10px;">
+          </div>
+          <button type="submit" class="btn btn-primary" style="background:#7C3AED; padding:10px 18px; font-size:13px; white-space:nowrap;">
+            <i class="fa-solid fa-check"></i> 비밀번호 변경 저장
+          </button>
+        </form>
       </div>
 
       <!-- 1. 신규 첫 로그인 승인 요청 관리 카드 -->
@@ -1243,7 +1263,7 @@
         <div id="admin-pending-approval-list"></div>
       </div>
 
-      <!-- 2. 전체 자치회 구성원 명단 & 비밀번호 관리 -->
+      <!-- ⭐️ 2. 전체 자치회 구성원 명단 & 비밀번호 확인/삭제/초기화 관리 카드 -->
       <div class="card" style="background:#FFFBEB; border: 1.5px solid #FDE68A;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:8px;">
           <h3 style="font-size:16px; font-weight:700; color:#92400E;">
@@ -1251,7 +1271,9 @@
           </h3>
           <span style="font-size:12px; font-weight:700; color:#B45309;">총 <b id="admin-approved-count">0</b>명 승인됨</span>
         </div>
-        <p style="font-size:13px; color:#B45309; margin-bottom:12px;">현재 승인 완료되어 활동 중인 학생 명단입니다. 비밀번호 분실 시 1234로 초기화할 수 있습니다.</p>
+        <p style="font-size:13px; color:#B45309; margin-bottom:12px;">
+          학생이 설정한 <b>비밀번호 4자리를 직접 확인</b>하여 알려주거나, 비밀번호 1234 초기화 및 계정 완전 삭제를 진행할 수 있습니다.
+        </p>
         <div id="admin-pw-reset-list"></div>
       </div>
 
@@ -1450,7 +1472,7 @@
     </div>
   </div>
 
-  <!-- [안건 상세 보기 모달: 순수 정보 열람 및 실시간 회의 탭 바로가기] -->
+  <!-- 안건 상세 보기 모달 -->
   <div id="agenda-modal" class="modal-backdrop hidden" onclick="handleBackdropClick(event, 'agenda-modal')">
     <div class="modal-box">
       <button class="close-modal-btn" onclick="closeModal('agenda-modal')"><i class="fa-solid fa-xmark"></i></button>
@@ -1494,7 +1516,9 @@
     const SUPABASE_URL = "https://wjkwdsopttuibaqhqtth.supabase.co";
     const SUPABASE_KEY = "sb_publishable_KklKPQDko51Y4aFxKfn1fg_F7TAKN1x";
     const STUDENT_DEFAULT_PIN = "1234";
-    const TEACHER_PIN = "0000";
+
+    // ⭐️ 지도교사 비밀번호 (로컬 스토리지 및 클라우드 동기화 지원, 기본값: 0000)
+    let currentTeacherPin = localStorage.getItem('sc_teacher_pin') || "0000";
   
     let supabaseClient = null;
     if (SUPABASE_URL.startsWith("http") && !SUPABASE_URL.includes("여기에")) {
@@ -1515,10 +1539,7 @@
     let currentCalDate = new Date();
     let pendingStudentName = null;
 
-    // ⭐️ 독립 투표 데이터: { [proposalId]: [ { voter: "6-1 홍길동", vote_type: "agree" } ] }
     let liveVotesData = {};
-
-    // ⭐️ 세부 제안 데이터: { "안건제목": [ { id: 1, author: "6-2 반장", title: "제안명", desc: "내용" } ] }
     let agendaProposals = JSON.parse(localStorage.getItem('sc_agenda_proposals_v1')) || {};
     let agendaMinutes = JSON.parse(localStorage.getItem('sc_agenda_minutes_v1')) || {};
 
@@ -1656,6 +1677,10 @@
             if (row.key === 'submissions' && row.value) submissions = row.value;
             if (row.key === 'agenda_proposals' && row.value) agendaProposals = row.value;
             if (row.key === 'agenda_minutes' && row.value) agendaMinutes = row.value;
+            if (row.key === 'teacher_pin' && row.value) {
+              currentTeacherPin = String(row.value);
+              localStorage.setItem('sc_teacher_pin', currentTeacherPin);
+            }
           });
 
           localStorage.setItem('sc_home_data_v2', JSON.stringify(homeData));
@@ -1673,14 +1698,12 @@
           if (currentRole === 'teacher') renderAdminHomeManagement();
         }
 
-        // ⭐️ 독립 votes 테이블 데이터 동기화
         await fetchAllVotes();
       } catch (err) {
         console.warn("Supabase 동기화 알림 (로컬 캐시 사용):", err);
       }
     }
 
-    // ⭐️ votes 테이블 전체 로드
     async function fetchAllVotes() {
       if (!supabaseClient) return;
       try {
@@ -1696,11 +1719,10 @@
           }
         }
       } catch (e) {
-        console.warn("votes 테이블 조회 오류 (테이블 생성 확인 필요):", e);
+        console.warn("votes 테이블 조회 오류:", e);
       }
     }
 
-    // ⭐️ Supabase Realtime 리스너: 다른 학생이 투표하면 즉시 내 화면 갱신
     function subscribeToVotes() {
       if (!supabaseClient) return;
       try {
@@ -1935,7 +1957,7 @@
     }
 
     // ==========================================
-    // ⭐️ [신설] 🎙️ 실시간 회의 탭 (제안별 찬반투표 & 회의록)
+    // ⭐️ [신설] 🎙️ 실시간 회의 탭
     // ==========================================
     function updateLiveAgendaDropdown() {
       const select = document.getElementById('live-meeting-agenda-select');
@@ -1983,7 +2005,6 @@
       renderLiveMinutesView(agenda.title);
     }
 
-    // ⭐️ 세부 제안(안)별 찬반 투표 카드 렌더링 (독립 votes 테이블 연동)
     function renderProposalVoteCards(agendaTitle) {
       if (!agendaProposals[agendaTitle]) {
         agendaProposals[agendaTitle] = [];
@@ -2006,7 +2027,6 @@
       const currentUserIdentifier = currentRole === 'teacher' ? '교사(관리자)' : (currentClass || 'guest');
 
       container.innerHTML = pList.map(p => {
-        // 독립 votes 테이블에서 해당 제안의 찬/반 목록 추출
         const votes = liveVotesData[p.id] || [];
         const agreeList = votes.filter(v => v.vote_type === 'agree').map(v => v.voter);
         const disagreeList = votes.filter(v => v.vote_type === 'disagree').map(v => v.voter);
@@ -2043,7 +2063,6 @@
               ${p.desc}
             </p>
 
-            <!-- 제안별 찬/반 투표 버튼 -->
             <div style="display:flex; gap:10px; margin-bottom:10px;">
               <button onclick="handleVoteProposal(${p.id}, 'agree')" class="vote-btn-agree ${isAgree ? 'voted' : ''}">
                 <i class="fa-solid fa-thumbs-up"></i> 찬성 ${agreeCount}표
@@ -2053,7 +2072,6 @@
               </button>
             </div>
 
-            <!-- 찬/반 득표율 그래프 바 -->
             <div style="height:10px; width:100%; background:#E2E8F0; border-radius:6px; overflow:hidden; display:flex; margin-bottom:6px;">
               <div style="height:100%; width:${agreePercent}%; background:#16A34A; transition:width 0.3s ease;"></div>
               <div style="height:100%; width:${disagreePercent}%; background:#DC2626; transition:width 0.3s ease;"></div>
@@ -2064,7 +2082,6 @@
               <span style="color:#DC2626;">반대 ${Math.round(disagreePercent)}%</span>
             </div>
 
-            <!-- 🔒 지도교사 전용: 해당 제안 투표자 실명 명부 확인 -->
             ${currentRole === 'teacher' ? `
             <div style="padding-top:8px; border-top:1px dashed #CBD5E1;">
               <button onclick="toggleProposalRoster(${p.id})" style="background:none; border:none; color:#4338CA; font-size:11px; font-weight:800; cursor:pointer; padding:2px;">
@@ -2116,7 +2133,6 @@
       showToast("💡 새로운 세부 제안이 성공적으로 상정되었습니다!");
     }
 
-    // ⭐️ 20명이 동시에 눌러도 충돌 없는 독립 투표 핸들러
     async function handleVoteProposal(proposalId, type) {
       const voter = currentRole === 'teacher' ? '교사(관리자)' : (currentClass || 'guest');
       
@@ -2126,12 +2142,10 @@
       if (supabaseClient) {
         try {
           if (existingVote && existingVote.vote_type === type) {
-            // 같은 버튼 다시 누름 -> 취소 (DELETE)
             await supabaseClient.from('votes').delete().match({ proposal_id: proposalId, voter: voter });
             liveVotesData[proposalId] = liveVotesData[proposalId].filter(v => v.voter !== voter);
             showToast("투표가 취소되었습니다.");
           } else {
-            // 새로 투표하거나 찬/반 변경 -> UPSERT
             await supabaseClient.from('votes').upsert({
               proposal_id: proposalId,
               voter: voter,
@@ -2149,7 +2163,6 @@
           console.error("투표 전송 에러:", err);
         }
       } else {
-        // 로컬 오프라인 Fallback
         if (existingVote && existingVote.vote_type === type) {
           liveVotesData[proposalId] = liveVotesData[proposalId].filter(v => v.voter !== voter);
           showToast("투표가 취소되었습니다.");
@@ -2400,6 +2413,37 @@
       renderAdminApprovedMemberList();
     }
 
+    // ⭐️ 1. 지도교사 비밀번호 변경 핸들러
+    async function handleTeacherPasswordChange(e) {
+      e.preventDefault();
+      const curInput = document.getElementById('current-teacher-pw-input').value.trim();
+      const newInput = document.getElementById('new-teacher-pw-input').value.trim();
+
+      if (curInput !== currentTeacherPin) {
+        showCustomDialog({
+          title: "비밀번호 불일치",
+          message: "현재 지도교사 비밀번호가 일치하지 않습니다."
+        });
+        return;
+      }
+
+      if (!newInput || newInput.length < 4) {
+        showCustomDialog({
+          title: "비밀번호 형식",
+          message: "새 비밀번호는 4자리 이상으로 설정해주세요."
+        });
+        return;
+      }
+
+      currentTeacherPin = newInput;
+      localStorage.setItem('sc_teacher_pin', currentTeacherPin);
+      await pushToCloudStore('teacher_pin', currentTeacherPin);
+
+      document.getElementById('current-teacher-pw-input').value = "";
+      document.getElementById('new-teacher-pw-input').value = "";
+      showToast("🔒 지도교사 비밀번호가 성공적으로 변경되었습니다!");
+    }
+
     function renderAdminPendingList() {
       const container = document.getElementById('admin-pending-approval-list');
       const pendingNames = Object.keys(studentAccounts).filter(name => !studentAccounts[name].approved);
@@ -2426,6 +2470,7 @@
       `;
     }
 
+    // ⭐️ 2. 승인 완료된 학생 목록 렌더링 (비번 보기 & 삭제 기능 완비)
     function renderAdminApprovedMemberList() {
       const container = document.getElementById('admin-pw-reset-list');
       const countEl = document.getElementById('admin-approved-count');
@@ -2439,15 +2484,62 @@
       }
 
       container.innerHTML = `
-        <div style="display:flex; flex-wrap:wrap; gap:8px;">
-          ${approvedNames.map(name => `
-            <div style="background:white; border:1px solid #FDE68A; padding:6px 12px; border-radius:8px; display:inline-flex; align-items:center; gap:8px; font-size:12px;">
-              <span><i class="fa-solid fa-user-check" style="color:#10B981;"></i> <b>${name}</b></span>
-              <button onclick="resetStudentPassword('${name}')" class="btn btn-secondary" style="padding:2px 6px; font-size:11px; color:#B45309; background:#FEF3C7;">1234로 초기화</button>
-            </div>
-          `).join('')}
+        <div style="display:flex; flex-wrap:wrap; gap:10px;">
+          ${approvedNames.map((name, idx) => {
+            const acc = studentAccounts[name] || {};
+            const pwDisplay = acc.pw ? acc.pw : '미설정(1234)';
+            return `
+              <div style="background:white; border:1px solid #FDE68A; padding:8px 12px; border-radius:10px; display:inline-flex; align-items:center; gap:8px; font-size:12px; box-shadow:0 2px 4px rgba(0,0,0,0.03);">
+                <span><i class="fa-solid fa-user-check" style="color:#10B981;"></i> <b>${name}</b></span>
+                
+                <!-- 👁️ 비밀번호 직접 보기 토글 버튼 -->
+                <button id="pw-view-btn-${idx}" onclick="toggleStudentPwView(${idx}, '${pwDisplay}')" class="btn btn-secondary" style="padding:3px 8px; font-size:11px; color:#4338CA; background:#EEF2FF; font-weight:800;">
+                  <i class="fa-solid fa-eye"></i> 비번: <span id="pw-text-${idx}">****</span>
+                </button>
+
+                <!-- 1234 초기화 -->
+                <button onclick="resetStudentPassword('${name}')" class="btn btn-secondary" style="padding:3px 8px; font-size:11px; color:#B45309; background:#FEF3C7;" title="비밀번호 1234로 재설정">
+                  초기화
+                </button>
+
+                <!-- 🗑️ 계정 완전 삭제 -->
+                <button onclick="deleteStudentAccountPermanently('${name}')" class="btn btn-danger" style="padding:3px 8px; font-size:11px;" title="구성원에서 영구 삭제">
+                  삭제
+                </button>
+              </div>
+            `;
+          }).join('')}
         </div>
       `;
+    }
+
+    // ⭐️ 비밀번호 가리기/보이기 토글
+    function toggleStudentPwView(idx, pwValue) {
+      const textSpan = document.getElementById(`pw-text-${idx}`);
+      if (textSpan.innerText === '****') {
+        textSpan.innerText = pwValue;
+        textSpan.style.color = "#DC2626";
+      } else {
+        textSpan.innerText = '****';
+        textSpan.style.color = "";
+      }
+    }
+
+    // ⭐️ 학생 계정 완전 삭제 함수
+    function deleteStudentAccountPermanently(studentName) {
+      showCustomDialog({
+        title: "학생 계정 완전 삭제",
+        message: `[${studentName}] 학생을 자치회 구성원에서 완전히 삭제하시겠습니까?\n삭제 후 해당 학생은 다시 승인을 받아야 입장할 수 있습니다.`,
+        icon: '<i class="fa-solid fa-user-xmark" style="color:#EF4444;"></i>',
+        showCancel: true,
+        onConfirm: async () => {
+          delete studentAccounts[studentName];
+          localStorage.setItem('sc_student_accounts_v1', JSON.stringify(studentAccounts));
+          await pushToCloudStore('student_accounts', studentAccounts);
+          renderAdminApprovedMemberList();
+          showToast(`[${studentName}] 학생 계정이 삭제되었습니다.`);
+        }
+      });
     }
 
     async function approveStudentLogin(studentName) {
@@ -2711,7 +2803,7 @@
       if (pw !== account.pw) {
         showCustomDialog({ 
           title: "비밀번호 불일치", 
-          message: "설정하신 비밀번호 4자리가 일치하지 않습니다.\n(비밀번호 분실 시 지도교사 선생님께 초기화를 요청하세요.)" 
+          message: "설정하신 비밀번호 4자리가 일치하지 않습니다.\n(비밀번호를 분실했을 경우 지도교사 선생님께 확인을 요청하세요.)" 
         });
         return;
       }
@@ -2774,8 +2866,8 @@
       e.preventDefault();
       const pw = document.getElementById('login-teacher-pw').value;
   
-      if (pw !== TEACHER_PIN) {
-        showCustomDialog({ title: "인증 실패", message: "관리자 비밀번호가 일치하지 않습니다. (기본: 0000)" });
+      if (pw !== currentTeacherPin) {
+        showCustomDialog({ title: "인증 실패", message: "관리자 비밀번호가 일치하지 않습니다." });
         return;
       }
   
@@ -2794,6 +2886,7 @@
       pushToCloudStore('total_budget', totalBudget);
       pushToCloudStore('expenses', expenses);
       pushToCloudStore('item_requests', itemRequests);
+      pushToCloudStore('teacher_pin', currentTeacherPin);
     }
   
     function restoreSession() {
@@ -3423,6 +3516,9 @@
               ${item.class_name} • ${item.author} (${item.category})
             </div>
             <p style="font-size:13px; color:#475569; line-height:1.5; white-space:pre-line;">${item.content}</p>
+            <div style="display:flex; justify-content:flex-end; margin-top:6px;">
+              <span style="font-size:12px; color:#E11D48; font-weight:700;"><i class="fa-solid fa-heart"></i> ${(item.likedBy || []).length}</span>
+            </div>
           </div>
         </div>
       `).join('');
